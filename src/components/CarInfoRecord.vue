@@ -45,7 +45,7 @@
                         <el-input
                                 v-model="search"
                                 size="mini"
-                                placeholder="输入关键字搜索"/>
+                                placeholder="输入车牌号搜索"/>
                     </template>
                     <template slot-scope="scope">
                         <el-button
