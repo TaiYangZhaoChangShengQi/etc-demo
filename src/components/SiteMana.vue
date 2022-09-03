@@ -6,7 +6,7 @@
         <div class="site-item-2">
             <div class="site-item-2-1">
                 <div class="site-item-2-1-1">
-                    <el-button type="primary">添加区域</el-button>
+                    <el-button type="primary" @click="dialogFormVisible = true">添加站点</el-button>
                 </div>
                 <div class="site-item-2-1-2">当前：{{PageName}}</div>
             </div>
@@ -53,6 +53,29 @@
             </div>
 
         </div>
+        <el-dialog title="添加站点" :visible.sync="dialogFormVisible">
+            <el-form ref="form" :model="form" label-width="80px">
+                <el-form-item label="站点名称">
+                    <el-input v-model="form.name"></el-input>
+                </el-form-item>
+                <el-form-item label="绑定区域">
+                    <el-select v-model="form.region" placeholder="请选择活动区域">
+                        <el-option label="区域一" value="shanghai"></el-option>
+                        <el-option label="区域二" value="beijing"></el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="设备编号">
+                    <el-input v-model="form.name"></el-input>
+                </el-form-item>
+                <el-form-item label="备注">
+                    <el-input type="textarea" v-model="form.desc"></el-input>
+                </el-form-item>
+                <el-form-item>
+                    <el-button type="primary" @click="onSubmit">立即创建</el-button>
+                    <el-button>取消</el-button>
+                </el-form-item>
+            </el-form>
+        </el-dialog>
     </div>
 
 </template>
@@ -63,6 +86,7 @@
         data(){
             return {
                 PageName:'站点管理',
+                dialogFormVisible:false,
                 tableData: [{
                     num: '1-01',
                     name: '站点01',
@@ -73,7 +97,8 @@
                     name: '站点02',
                     region: '上海市普陀区金沙江路 1517 弄',
                     info:''
-                }, {
+                },
+                    {
                     num: '1-03',
                     name: '站点03',
                     region: '上海市普陀区金沙江路 1519 弄',
@@ -137,9 +162,19 @@
                 defaultProps: {
                     children: 'children',
                     label: 'label'
+                },
+                form: {
+                    name: '',
+                    region: '',
+                    date1: '',
+                    date2: '',
+                    delivery: false,
+                    type: [],
+                    resource: '',
+                    desc: ''
                 }
-            };
 
+            }
 
             },
 
@@ -183,5 +218,20 @@
     }
     .site-item-2-2 {
         box-shadow: 0 12px 24px 5px rgba(0,0,0, .16);
+    }
+
+    .el-dialog {
+        left: 700px;
+        top: 200px;
+        padding: 5px 50px;
+        width: 400px;
+        position: absolute;
+        background-color: white;
+        box-shadow: 0 2px 20px 1px rgb(128,128,128);
+        z-index: 20;
+
+    }
+    .form .title {
+        text-align: center;
     }
 </style>

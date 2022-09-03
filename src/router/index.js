@@ -12,10 +12,10 @@ import CarInfoRecord from "@/components/CarInfoRecord";
 Vue.use(VueRouter)
 
 const routes = [
-  // {
-  //   path: '/',
-  //   component: RegionalMana
-  // },
+  {
+    path: '/',
+    component: Map
+  },
 
   {
     path: '/RegMana',
