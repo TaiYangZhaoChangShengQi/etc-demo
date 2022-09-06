@@ -9,7 +9,7 @@
                     <el-button type="primary" @click="dialogFormVisible = true">添加站点</el-button>
                 </div>
                 <div class="site-item-2-1-2">当前：{{PageName}}
-                {{typeof form.region}}</div>
+                </div>
             </div>
             <div class="site-item-2-2">
                 <el-table
@@ -20,12 +20,16 @@
                             prop="SiteNum">
                     </el-table-column>
                     <el-table-column
-                            label="站点名称"
-                            prop="label">
+                            label="站点名称">
+                        <template slot-scope="scope">
+                            <div>{{scope.row.label}}</div>
+                        </template>
                     </el-table-column>
                     <el-table-column
-                            label="所属区域"
-                            prop="region">
+                            label="所属区域">
+                        <template slot-scope="scope">
+                            <div>{{scope.row.region}}</div>
+                        </template>
                     </el-table-column>
                     <el-table-column
                             label="备注"
@@ -47,13 +51,15 @@
                             <el-button
 
                                     type="danger"
-                                    @click="handleDelete(scope.$index, scope.row)">删除</el-button>
+                                    @click="">删除</el-button>
                         </template>
                     </el-table-column>
                 </el-table>
             </div>
 
         </div>
+
+        <!-- 添加站点对话框       -->
         <el-dialog title="添加站点" :visible.sync="dialogFormVisible">
             <el-form ref="form" :model="form" label-width="80px">
                 <el-form-item label="绑定区域">
@@ -78,24 +84,25 @@
                 </el-form-item>
             </el-form>
         </el-dialog>
+
         <!-- 修改站点信息对话框       -->
         <el-dialog title="修改站点信息" :visible.sync="dialogChangeVisible">
             <el-form ref="form" :model="SiteForm" label-width="80px">
-                <el-form-item label="编号">
-                    <el-input v-model="form.label"></el-input>
+                <el-form-item label="站点编号">
+                    <el-input v-model="SiteForm.SiteNum" disabled></el-input>
                 </el-form-item>
                 <el-form-item label="站点名称">
-                    <el-input v-model="form.label"></el-input>
+                    <el-input v-model="SiteForm.label"></el-input>
                 </el-form-item>
 
-                <el-form-item label="设备编号">
-                    <el-input v-model="form.SiteNum"></el-input>
+                <el-form-item label="所属区域">
+                    <el-input v-model="SiteForm.region" disabled></el-input>
                 </el-form-item>
                 <el-form-item label="备注">
-                    <el-input type="textarea" v-model="form.info"></el-input>
+                    <el-input type="textarea" v-model="SiteForm.info"></el-input>
                 </el-form-item>
                 <el-form-item>
-                    <el-button type="primary" @click="onSubmit">立即创建</el-button>
+                    <el-button type="primary" @click="BaoCun(SiteForm.num,SiteForm.SiteNum)">保存</el-button>
                     <el-button @click="dialogChangeVisible = false">取消</el-button>
                 </el-form-item>
             </el-form>
@@ -168,25 +175,33 @@
             editData(label,num){
                 let num1 = Number(num)
                 this.dialogChangeVisible = true
-
                 //跟store里的匹配
                 for (let i = 0;i<this.store.data[num1-1].children.length;i++) {
                     if (label == this.store.data[num1-1].children[i].label){
-                        this.SiteForm = this.store.data[num1-1].children[i]
+                        let c = JSON.parse(JSON.stringify(this.store.data[num1-1].children[i])) //解决浅拷贝
+                        this.SiteForm = c
+                    }
+                }
+
+            },
+            //保存修改
+            BaoCun(num,siteNum){
+                let num1 = Number(num)
+                for (let i = 0;i<this.store.data[num1-1].children.length;i++) {
+                    if (siteNum == this.store.data[num1-1].children[i].SiteNum){
+                        this.store.data[num1-1].children[i] = this.SiteForm
                     }
 
                 }
-
-
+                this.UpData() //重新渲染列表
+                this.dialogChangeVisible = false
             }
 
         },
         created() {
             this.UpData()
         },
-        updated() {
-            this.UpData()
-        }
+
 
     }
 </script>
