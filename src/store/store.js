@@ -32,7 +32,7 @@ export  const store = reactive({
                 children: [{
                     label: '设备 1-2-2',
                     SiteLabel:'站点 1-2',
-                    DevNum:'1-1-2',
+                    DevNum:'1-2-2',
                     DevIP:'192.168.0.1',
                     MAC:'00-01-6C-06-A6-12',
                     DevType:'',
