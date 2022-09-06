@@ -5,7 +5,7 @@
         </div>
         <div class="lsit-lsit">
             <el-table
-                    :data="tableData"
+                    :data="store.data"
                     max-height="600"
                     border
                     style="width: 100%">
@@ -15,12 +15,12 @@
                         width="180">
                 </el-table-column>
                 <el-table-column
-                        prop="name"
+                        prop="label"
                         label="名称"
                         width="180">
                 </el-table-column>
                 <el-table-column
-                        prop="GPSaddress"
+                        prop="GPS"
                         label="GPS">
                 </el-table-column>
                 <el-table-column
@@ -39,24 +39,13 @@
 </template>
 
 <script>
+    import  {store} from "@/store/store";
+
     export default {
         name: "RegManaList",
         data(){
             return{
-                tableData:[
-                    {
-                        num:'01',
-                        name:'区域01',
-                        GPSaddress:'22.674574, 113.993353',
-                        info:''
-                    },
-                    {
-                        num:'02',
-                        name:'区域02',
-                        GPSaddress:'22.674544, 113.993362',
-                        info:''
-                    }
-                ]
+                store
             }
         }
     }

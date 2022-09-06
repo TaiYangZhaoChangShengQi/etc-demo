@@ -1,26 +1,27 @@
 <template>
     <div class="SiteBody">
         <div class="site-item-1" >
-            <el-tree :data="data" :props="defaultProps" @node-click="handleNodeClick"></el-tree>
+            <el-tree :data="store.data" :props="defaultProps" @node-click="handleNodeClick"></el-tree>
         </div>
         <div class="site-item-2">
             <div class="site-item-2-1">
                 <div class="site-item-2-1-1">
                     <el-button type="primary" @click="dialogFormVisible = true">添加站点</el-button>
                 </div>
-                <div class="site-item-2-1-2">当前：{{PageName}}</div>
+                <div class="site-item-2-1-2">当前：{{PageName}}
+                {{typeof form.region}}</div>
             </div>
             <div class="site-item-2-2">
                 <el-table
-                        :data="tableData.filter(data => !search || data.name.toLowerCase().includes(search.toLowerCase()))"
+                        :data="SiteData.filter(data => !search || data.label.toLowerCase().includes(search.toLowerCase()))"
                         style="width: 100%">
                     <el-table-column
-                            label="编号"
-                            prop="num">
+                            label="站点编号"
+                            prop="SiteNum">
                     </el-table-column>
                     <el-table-column
-                            label="名称"
-                            prop="name">
+                            label="站点名称"
+                            prop="label">
                     </el-table-column>
                     <el-table-column
                             label="所属区域"
@@ -42,7 +43,7 @@
                         <template slot-scope="scope">
                             <el-button
                                     type="warning"
-                                    @click="handleEdit(scope.$index, scope.row)">修改</el-button>&nbsp;&nbsp;&nbsp;
+                                    @click="editData(scope.row.label,scope.row.num)">修改</el-button>&nbsp;&nbsp;&nbsp;
                             <el-button
 
                                     type="danger"
@@ -55,123 +56,81 @@
         </div>
         <el-dialog title="添加站点" :visible.sync="dialogFormVisible">
             <el-form ref="form" :model="form" label-width="80px">
-                <el-form-item label="站点名称">
-                    <el-input v-model="form.name"></el-input>
-                </el-form-item>
                 <el-form-item label="绑定区域">
                     <el-select v-model="form.region" placeholder="请选择活动区域">
-                        <el-option label="区域一" value="shanghai"></el-option>
-                        <el-option label="区域二" value="beijing"></el-option>
+                        <el-option label="区域一" value="区域01" @click="form.num=1"></el-option>
+                        <el-option label="区域二" value="区域02" @click="form.num=2"></el-option>
                     </el-select>
                 </el-form-item>
+                <el-form-item label="站点名称">
+                    <el-input v-model="form.label"></el-input>
+                </el-form-item>
+
                 <el-form-item label="设备编号">
-                    <el-input v-model="form.name"></el-input>
+                    <el-input v-model="form.SiteNum"></el-input>
                 </el-form-item>
                 <el-form-item label="备注">
-                    <el-input type="textarea" v-model="form.desc"></el-input>
+                    <el-input type="textarea" v-model="form.info"></el-input>
                 </el-form-item>
                 <el-form-item>
                     <el-button type="primary" @click="onSubmit">立即创建</el-button>
-                    <el-button>取消</el-button>
+                    <el-button >取消</el-button>
                 </el-form-item>
             </el-form>
         </el-dialog>
+        <!-- 修改站点信息对话框       -->
+        <el-dialog title="修改站点信息" :visible.sync="dialogChangeVisible">
+            <el-form ref="form" :model="SiteForm" label-width="80px">
+                <el-form-item label="编号">
+                    <el-input v-model="form.label"></el-input>
+                </el-form-item>
+                <el-form-item label="站点名称">
+                    <el-input v-model="form.label"></el-input>
+                </el-form-item>
+
+                <el-form-item label="设备编号">
+                    <el-input v-model="form.SiteNum"></el-input>
+                </el-form-item>
+                <el-form-item label="备注">
+                    <el-input type="textarea" v-model="form.info"></el-input>
+                </el-form-item>
+                <el-form-item>
+                    <el-button type="primary" @click="onSubmit">立即创建</el-button>
+                    <el-button @click="dialogChangeVisible = false">取消</el-button>
+                </el-form-item>
+            </el-form>
+        </el-dialog>
+
     </div>
 
 </template>
 
 <script>
+    import {store} from "@/store/store";
+
     export default {
         name: "SiteMana",
         data(){
             return {
+                store,
                 PageName:'站点管理',
-                dialogFormVisible:false,
-                tableData: [{
-                    num: '1-01',
-                    name: '站点01',
-                    region: '上海市普陀区金沙江路 1518 弄',
-                    info:''
-                }, {
-                    num: '1-02',
-                    name: '站点02',
-                    region: '上海市普陀区金沙江路 1517 弄',
-                    info:''
-                },
-                    {
-                    num: '1-03',
-                    name: '站点03',
-                    region: '上海市普陀区金沙江路 1519 弄',
-                    info:''
-                }, {
-                    num: '2-01',
-                    name: '站点04',
-                    region: '上海市普陀区金沙江路 1516 弄',
-                    info:''
-                }],
+                dialogFormVisible:false,    //控制添加站点弹窗
+                dialogChangeVisible:false, //控制修改按钮弹窗
+                SiteForm:{},//存放修改弹窗表单的数据
+                SiteData:[], //存放获取的站点数据，渲染到列表
                 search: '',
-                data: [
-                    {
-                    label: '区域01 ',
-                    num:'1',
-                    GPS:'',
-                    children: [{
-                        label: '站点 1-1',
-                        SiteNum:'1-1',
-                        region: '上海市普陀区金沙江路 1516 弄',
-                        info:'',
-                        children: [{
-                            label: '设备 1-1-1'
-                        }]
-                    },{
-                        label: '站点 1-2',
-                        SiteNum:'1-2',
-                        region: '上海市普陀区金沙江路 1516 弄',
-                        info:'',
-                        children: [{
-                            label: '设备 1-1-1'
-                        }]
-                    }]
-                },  {
-                        label: '区域02 ',
-                        num:'1',
-                        GPS:'',
-                        children: [{
-                            label: '站点 2-1',
-                            SiteNum:'2-1',
-                            region: '上海市普陀区金沙江路 1516 弄',
-                            info:'',
-                            children: [{
-                                label: '设备 1-1-1'
-                            }]
-                        }]
-                    }, {
-                        label: '区域03 ',
-                        num:'1',
-                        GPS:'',
-                        children: [{
-                            label: '站点 3-1',
-                            SiteNum:'3-1',
-                            region: '上海市普陀区金沙江路 1516 弄',
-                            info:'',
-                            children: [{
-                                label: '设备 1-1-1'
-                            }]
-                        }]
-                    }],
                 defaultProps: {
                     children: 'children',
                     label: 'label'
                 },
                 form: {
-                    name: '',
+                    label: '',
+                    num:'',
+                    SiteNum: '',
                     region: '',
-                    date1: '',
-                    date2: '',
-                    delivery: false,
-                    type: [],
-                    resource: '',
-                    desc: ''
+                    info: '',
+                    children: [],
+
                 }
 
             }
@@ -184,7 +143,49 @@
         methods: {
             handleEdit(index, row) {
                 console.log(index, row);
+            },
+            //获取store里的数据，存放到组件数据里
+            UpData(){
+                const data_1 = this.store.data
+                let k = 0
+
+                 for (let i = 0;i<data_1.length;i++) {
+                     for (let j = 0;j<data_1[i].children.length;j++){
+                         this.SiteData[k] = data_1[i].children[j]
+                         k++
+                     }
+
+                 }
+
+
+            },
+            //添加站点
+            onSubmit(){
+                this.store.addSite(1,this.form)
+                this.UpData()
+            },
+            //修改行数据
+            editData(label,num){
+                let num1 = Number(num)
+                this.dialogChangeVisible = true
+
+                //跟store里的匹配
+                for (let i = 0;i<this.store.data[num1-1].children.length;i++) {
+                    if (label == this.store.data[num1-1].children[i].label){
+                        this.SiteForm = this.store.data[num1-1].children[i]
+                    }
+
+                }
+
+
             }
+
+        },
+        created() {
+            this.UpData()
+        },
+        updated() {
+            this.UpData()
         }
 
     }
