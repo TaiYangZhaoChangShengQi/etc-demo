@@ -79,7 +79,7 @@
                     <el-input type="textarea" v-model="form.info"></el-input>
                 </el-form-item>
                 <el-form-item>
-                    <el-button type="primary" @click="onSubmit">立即创建</el-button>
+                    <el-button type="primary" @click="onSubmit(form.num,)">立即创建</el-button>
                     <el-button >取消</el-button>
                 </el-form-item>
             </el-form>
@@ -148,9 +148,7 @@
 
 
         methods: {
-            handleEdit(index, row) {
-                console.log(index, row);
-            },
+
             //获取store里的数据，存放到组件数据里
             UpData(){
                 const data_1 = this.store.data
@@ -167,12 +165,14 @@
 
             },
             //添加站点
-            onSubmit(){
-                this.store.addSite(1,this.form)
+            onSubmit(num){
+
+                this.store.addSite(num,this.form)
                 this.UpData()
             },
             //修改行数据
             editData(label,num){
+                console.log(num)
                 let num1 = Number(num)
                 this.dialogChangeVisible = true
                 //跟store里的匹配

@@ -47,6 +47,7 @@ export  const store = reactive({
             info:'',
             children: [{
                 label: '站点 2-1',
+                num:'2',
                 SiteNum:'2-1',
                 region: '上海市普陀区金沙江路 1516 弄',
                 info:'',
@@ -68,6 +69,7 @@ export  const store = reactive({
             info:'',
             children: [{
                 label: '站点 3-1',
+                num:'3',
                 SiteNum:'3-1',
                 region: '上海市普陀区金沙江路 1516 弄',
                 info:'',
@@ -89,12 +91,12 @@ export  const store = reactive({
     },
     search:'',
     //插入新站点
-    addSite(num,item){ //index1 区域 传num，
+    addSite(num,item){ //num 区域编号 传num，
         let num1 = Number(num)
         this.data[num1-1].children.push(item)
     },
     //插入新设备
-    addDev(SiteLabel,item){ //index1 区域 传num，
+    addDev(SiteLabel,item){ // 参数1 站点名 ，参数2 保存全部设备信息的对象
         console.log(SiteLabel,item)
         for (let i = 0;i<this.data.length;i++) {
             for (let j = 0;j<this.data[i].children.length;j++) {

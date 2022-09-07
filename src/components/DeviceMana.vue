@@ -119,12 +119,11 @@
         <el-dialog title="修改站点信息" :visible.sync="dialogChangeDevFormVisible">
             <el-form ref="form" :model="DevForm" label-width="80px">
                 <el-form-item label="设备编号">
-                    <el-input v-model="DevForm.DevNum" ></el-input>
+                    <el-input v-model="DevForm.DevNum" disabled></el-input>
                 </el-form-item>
                 <el-form-item label="设备名称">
                     <el-input v-model="DevForm.label"></el-input>
                 </el-form-item>
-
                 <el-form-item label="所属站点">
                     <el-input v-model="DevForm.SiteLabel" ></el-input>
                 </el-form-item>
@@ -231,15 +230,15 @@
             },
             //保存修改的设备信息
             DevBaoCun(num){
-                console.log(num)
+
                 for (let j = 0;j<this.store.data.length;j++) {
-                    console.log(21313)
+
                     for (let i = 0;i<this.store.data[j].children.length;i++) {
-                        console.log(2)
+
                         for (let k = 0;k<this.store.data[j].children[i].children.length;k++ ){
-                            console.log(3)
+
                             if (num == this.store.data[j].children[i].children[k].DevNum) {
-                                console.log(4)
+
                                 this.store.data[j].children[i].children[k] = this.DevForm
                                 console.log(this.store.data[j].children[i].children[k])
                             }
