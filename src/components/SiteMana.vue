@@ -114,7 +114,7 @@
                     <el-input type="textarea" v-model="SiteForm.info"></el-input>
                 </el-form-item>
                 <el-form-item>
-                    <el-button type="primary" @click="BaoCun(SiteForm.num,SiteForm.SiteNum)">保存</el-button>
+                    <el-button type="primary" @click="BaoCun(SiteForm.SiteNum)">保存</el-button>
                     <el-button @click="dialogChangeVisible = false">取消</el-button>
                 </el-form-item>
             </el-form>
@@ -172,10 +172,7 @@
                          this.SiteData[k] = data_1[i].children[j]
                          k++
                      }
-
                  }
-
-
             },
             //添加站点
             onSubmit(index1){
@@ -187,7 +184,6 @@
             //修改行数据
             editData(label,index2){ //label 站点名  index2 区域名
                 this.dialogChangeVisible = true
-
                 //跟store里的匹配
                 for (let i = 0;i<this.store.data.length;i++) {
                     for (let j = 0; j<this.store.data[i].children.length;j++) {
@@ -201,13 +197,14 @@
 
             },
             //保存修改
-            BaoCun(num,siteNum){
-                let num1 = Number(num)
-                for (let i = 0;i<this.store.data[num1-1].children.length;i++) {
-                    if (siteNum == this.store.data[num1-1].children[i].SiteNum){
-                        this.store.data[num1-1].children[i] = this.SiteForm
-                    }
+            BaoCun(siteNum){
 
+                for (let i = 0;i<this.store.data.length;i++) {
+                    for (let j = 0;j<this.store.data[i].children.length;j++){
+                        if (siteNum == this.store.data[i].children[j].SiteNum){
+                            this.store.data[i].children[j] = this.SiteForm
+                        }
+                    }
                 }
                 this.UpData() //重新渲染列表
                 this.dialogChangeVisible = false

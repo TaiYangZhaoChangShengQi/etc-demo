@@ -116,7 +116,7 @@
                 </el-form>
             </el-dialog>
         <!--修改设备信息对话框        -->
-        <el-dialog title="修改站点信息" :visible.sync="dialogChangeDevFormVisible">
+        <el-dialog title="修改设备信息" :visible.sync="dialogChangeDevFormVisible">
             <el-form ref="form" :model="DevForm" label-width="80px">
                 <el-form-item label="设备编号">
                     <el-input v-model="DevForm.DevNum" disabled></el-input>

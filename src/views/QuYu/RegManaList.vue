@@ -39,7 +39,7 @@
         </div>
 
 <!--    修改区域对话框      -->
-        <el-dialog title="修改站点信息" :visible.sync="dialogRegVisible">
+        <el-dialog title="修改区域信息" :visible.sync="dialogRegVisible">
             <el-form ref="form" :model="RegForm" label-width="80px">
                 <el-form-item label="区域编号">
                     <el-input v-model="RegForm.num" disabled></el-input>
