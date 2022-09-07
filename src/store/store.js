@@ -154,6 +154,22 @@ export  const store = reactive({
     search:'',
 
     //----------------------------------------函数---------------------------------------
+    //插入新区域
+    TrueAddReg(item){
+        this.data.push(item)
+        console.log(this.data)
+    },
+    //保存新区域
+    addReg(num,item){
+        num = Number(num)
+        this.data[num-1] = item
+
+    },
+    //删除区域
+    deleteRegData(num){
+        num = Number(num)
+        this.data.splice(num,1)
+    },
     //插入新站点
     addSite(index1,item){ //num 区域编号 传num，
         for (let i = 0;i<this.data.length;i++){

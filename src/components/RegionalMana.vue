@@ -4,40 +4,65 @@
             <div class="Rebody-item-l">
                 <el-select v-model="value1" placeholder="请选择当前区域">
                     <el-option
-                            v-for="item in options"
-                            :key="item.value"
+                            v-for="item in store.data"
+                            :key="item.num"
                             :label="item.label"
-                            :value="item.value">
+                            :value="item.num">
                     </el-option>
                 </el-select>
             </div>
             <div class="Rebody-item">
-                <el-button type="primary">添加区域</el-button>
+                <el-button type="primary" @click="dialogAddRegVisible = true" :disabled="ss">添加区域</el-button>
             </div>
             <div class="Rebody-item">
                 <el-button type="success" @click="clickRegManaList">列表视图</el-button>
             </div>
             <div class="Rebody-item">
-                <el-button type="success" @click="clickMap">Map视图</el-button>
+                <el-button type="success" @click="clickMap"  >Map视图</el-button>
             </div>
             <div class="Rebody-item-R">当前页面：{{pageName}}</div>
         </div>
-        <div class="routerStyle"><router-view></router-view></div>
+        <div class="routerStyle"><router-view ref="child"></router-view></div>
+        <!--    添加区域对话框    -->
+        <el-dialog title="添加区域信息" :visible.sync="dialogAddRegVisible">
+            <el-form ref="form" :model="addRegForm" label-width="80px">
+                <el-form-item label="区域编号">
+                    <el-input v-model="addRegForm.num" ></el-input>
+                </el-form-item>
+                <el-form-item label="区域名称">
+                    <el-input v-model="addRegForm.label"></el-input>
+                </el-form-item>
+                <el-form-item label="区域GPS">
+                    <el-input v-model="addRegForm.GPS"></el-input>
+                </el-form-item>
+                <el-form-item label="备注">
+                    <el-input v-model="addRegForm.info"></el-input>
+                </el-form-item>
+                <el-form-item>
+                    <el-button type="primary" @click="addListReg()">保存</el-button>
+                    <el-button @click="dialogAddRegVisible = false">取消</el-button>
+                </el-form-item>
+            </el-form>
+        </el-dialog>
 
     </div>
 </template>
 
 <script>
     import Map from "@/views/QuYu/Map";
+    import {store} from "@/store/store";
+    import RegManaList from "@/views/QuYu/RegManaList";
 
     //区域管理
     export default {
         name: "RegionalMana",
         components:{
-            Map
+            Map,
+            RegManaList
         },
         data(){
             return {
+                store,
                 options:[
                     {
                         value: '选项1',
@@ -48,16 +73,35 @@
                     }
                 ],
                 value1:'',
-                pageName:'区域管理'
+                ss:true,
+                pageName:'区域管理',
+                addRegForm:{
+                    label: '',
+                    num:'',
+                    GPS:'',
+                    info:'',
+                    children:[]
+                },
+                dialogAddRegVisible:false,
             }
         },
         methods:{
             clickMap(){
                 this.$router.push('/RegMana/Map')
+                this.ss = true
             },
             clickRegManaList(){
                 this.$router.push('/RegMana/RegManaList')
+                this.ss = false
+            },
+            //添加区域
+            addListReg(){
+                this.store.TrueAddReg(this.addRegForm)
+                this.dialogAddRegVisible = false
+                this.$refs.child.upRegData()
             }
+            //动态控制添加按钮
+
         }
 
 
