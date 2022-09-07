@@ -72,7 +72,7 @@
                             <el-button
                                     size="small"
                                     type="danger"
-                                    @click="">删除</el-button>
+                                    @click="deleteDevDate(scope.row.DevNum)">删除</el-button>
                         </template>
                     </el-table-column>
                 </el-table>
@@ -80,7 +80,7 @@
         </div>
 
         <!--添加设备对话框 -->
-            <el-dialog title="添加设备" :visible.sync="dialogFormVisible">
+        <el-dialog title="添加设备" :visible.sync="dialogFormVisible">
                 <el-form ref="form" :model="form" label-width="80px">
                     <el-form-item label="绑定站点">
                         <el-select v-model="form.SiteLabel" placeholder="请选择站点">
@@ -185,18 +185,15 @@
         methods:{
             //把总数据数组里的设备数据，全部赋值到数组DevData里
             UpDevData(){
-                const data_2 = this.store.data
+                this.DevData.splice(0) //这个很重要，一定要清空一次，不然使用删除按钮的时候会不刷新列表，我也不知道为什么，只是猜测和这个有关
                 let k = 0
-
-                for (let i = 0;i<data_2.length;i++) {
-                    for (let j = 0;j<data_2[i].children.length;j++){
-                        for (let e = 0;e<data_2[i].children[j].children.length;e++) {
-                            this.DevData[k] = data_2[i].children[j].children[e]
+                for (let i = 0;i<this.store.data.length;i++) {
+                    for (let j = 0;j<this.store.data[i].children.length;j++){
+                        for (let e = 0;e<this.store.data[i].children[j].children.length;e++) {
+                            this.DevData[k] = this.store.data[i].children[j].children[e]
                             k++
                         }
-
                     }
-
                 }
 
 
@@ -230,15 +227,10 @@
             },
             //保存修改的设备信息
             DevBaoCun(num){
-
                 for (let j = 0;j<this.store.data.length;j++) {
-
                     for (let i = 0;i<this.store.data[j].children.length;i++) {
-
                         for (let k = 0;k<this.store.data[j].children[i].children.length;k++ ){
-
                             if (num == this.store.data[j].children[i].children[k].DevNum) {
-
                                 this.store.data[j].children[i].children[k] = this.DevForm
                                 console.log(this.store.data[j].children[i].children[k])
                             }
@@ -249,10 +241,30 @@
                 this.UpDevData()
                 this.dialogChangeDevFormVisible = false
 
+            },
+            //删除设备信息
+            deleteDevDate(index1){
+
+                for (let j = 0;j<this.store.data.length;j++) {
+                    for (let i = 0;i<this.store.data[j].children.length;i++) {
+                        for (let k = 0;k<this.store.data[j].children[i].children.length;k++ ){
+                            if (index1 == this.store.data[j].children[i].children[k].DevNum) {
+                                console.log(111)
+                                this.store.data[j].children[i].children.splice(k,1)
+                                console.log(this.store.data[j].children[i].children)
+                            }
+                        }
+                    }
+                }
+                this.UpDevData()
+                console.log(this.DevData)
             }
         },
         created() {
             this.UpDevData()
+        },
+        updated() {
+
         }
     }
 </script>

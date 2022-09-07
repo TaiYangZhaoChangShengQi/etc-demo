@@ -17,27 +17,39 @@
                         style="width: 100%">
                     <el-table-column
                             label="站点编号"
+                            width="100"
                             prop="SiteNum">
                     </el-table-column>
                     <el-table-column
-                            label="站点名称">
+                            label="站点名称"
+                            width="100">
                         <template slot-scope="scope">
                             <div>{{scope.row.label}}</div>
                         </template>
                     </el-table-column>
                     <el-table-column
-                            label="所属区域">
+                            label="站点GPS"
+                            width="200">
+                        <template slot-scope="scope">
+                            <div>{{scope.row.SiteGPS}}</div>
+                        </template>
+                    </el-table-column>
+
+                    <el-table-column
+                            label="所属区域"
+                            width="200">
                         <template slot-scope="scope">
                             <div>{{scope.row.region}}</div>
                         </template>
                     </el-table-column>
                     <el-table-column
                             label="备注"
+                            width="200"
                             prop="info">
                     </el-table-column>
 
                     <el-table-column
-                            align="right">
+                            align="center">
                         <template slot="header" slot-scope="scope">
                             <el-input
                                     v-model="search"
@@ -47,11 +59,10 @@
                         <template slot-scope="scope">
                             <el-button
                                     type="warning"
-                                    @click="editData(scope.row.label,scope.row.num)">修改</el-button>&nbsp;&nbsp;&nbsp;
+                                    @click="editData(scope.row.label,scope.row.RegLabel)">修改</el-button>&nbsp;&nbsp;&nbsp;
                             <el-button
-
                                     type="danger"
-                                    @click="">删除</el-button>
+                                    @click="deleteSite(scope.row.SiteNum)">删除</el-button>
                         </template>
                     </el-table-column>
                 </el-table>
@@ -63,15 +74,14 @@
         <el-dialog title="添加站点" :visible.sync="dialogFormVisible">
             <el-form ref="form" :model="form" label-width="80px">
                 <el-form-item label="绑定区域">
-                    <el-select v-model="form.region" placeholder="请选择活动区域">
-                        <el-option label="区域一" value="区域01" @click="form.num=1"></el-option>
-                        <el-option label="区域二" value="区域02" @click="form.num=2"></el-option>
-                    </el-select>
+                    <el-input v-model="form.RegLabel"></el-input>
                 </el-form-item>
                 <el-form-item label="站点名称">
                     <el-input v-model="form.label"></el-input>
                 </el-form-item>
-
+                <el-form-item label="站点GPS">
+                    <el-input v-model="form.SiteGPS"></el-input>
+                </el-form-item>
                 <el-form-item label="设备编号">
                     <el-input v-model="form.SiteNum"></el-input>
                 </el-form-item>
@@ -79,7 +89,7 @@
                     <el-input type="textarea" v-model="form.info"></el-input>
                 </el-form-item>
                 <el-form-item>
-                    <el-button type="primary" @click="onSubmit(form.num,)">立即创建</el-button>
+                    <el-button type="primary" @click="onSubmit(form.RegLabel)">立即创建</el-button>
                     <el-button >取消</el-button>
                 </el-form-item>
             </el-form>
@@ -94,7 +104,9 @@
                 <el-form-item label="站点名称">
                     <el-input v-model="SiteForm.label"></el-input>
                 </el-form-item>
-
+                <el-form-item label="站点GPS">
+                    <el-input v-model="SiteForm.SiteGPS"></el-input>
+                </el-form-item>
                 <el-form-item label="所属区域">
                     <el-input v-model="SiteForm.region" disabled></el-input>
                 </el-form-item>
@@ -132,8 +144,9 @@
                 },
                 form: {
                     label: '',
-                    num:'',
+                    RegLabel:'',
                     SiteNum: '',
+                    SiteGPS:'',
                     region: '',
                     info: '',
                     children: [],
@@ -151,9 +164,9 @@
 
             //获取store里的数据，存放到组件数据里
             UpData(){
+                this.SiteData.splice(0)
                 const data_1 = this.store.data
                 let k = 0
-
                  for (let i = 0;i<data_1.length;i++) {
                      for (let j = 0;j<data_1[i].children.length;j++){
                          this.SiteData[k] = data_1[i].children[j]
@@ -165,22 +178,25 @@
 
             },
             //添加站点
-            onSubmit(num){
-
-                this.store.addSite(num,this.form)
+            onSubmit(index1){
+                console.log(index1)
+                this.store.addSite(index1,this.form)
                 this.UpData()
+                this.dialogFormVisible = false
             },
             //修改行数据
-            editData(label,num){
-                console.log(num)
-                let num1 = Number(num)
+            editData(label,index2){ //label 站点名  index2 区域名
                 this.dialogChangeVisible = true
+
                 //跟store里的匹配
-                for (let i = 0;i<this.store.data[num1-1].children.length;i++) {
-                    if (label == this.store.data[num1-1].children[i].label){
-                        let c = JSON.parse(JSON.stringify(this.store.data[num1-1].children[i])) //解决浅拷贝
-                        this.SiteForm = c
+                for (let i = 0;i<this.store.data.length;i++) {
+                    for (let j = 0; j<this.store.data[i].children.length;j++) {
+                        if (label == this.store.data[i].children[j].label){
+                            let c = JSON.parse(JSON.stringify(this.store.data[i].children[j])) //解决浅拷贝
+                            this.SiteForm = c
+                        }
                     }
+
                 }
 
             },
@@ -195,7 +211,18 @@
                 }
                 this.UpData() //重新渲染列表
                 this.dialogChangeVisible = false
-            }
+            },
+            //删除站点函数
+            deleteSite(index1){ //index1 站点编号
+                for (let i = 0;i<this.store.data.length;i++) {
+                    for (let j = 0;j<this.store.data[i].children.length;j++){
+                        if (index1 == this.store.data[i].children[j].SiteNum){
+                            this.store.data[i].children.splice(j,1)
+                        }
+                    }
+                }
+                this.UpData()
+            },
 
         },
         created() {
