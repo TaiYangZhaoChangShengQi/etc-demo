@@ -2,7 +2,9 @@
   <div id="app">
     <Home></Home>
     <div class="content">
-      <Navigation></Navigation>
+      <div class="NeiL">
+        <Navigation></Navigation>
+      </div>
       <div class="NeiR">
         <router-view></router-view>
       </div>
@@ -12,17 +14,16 @@
 </template>
 
 <script>
-  import Home from "./components/Home";
-  import Navigation from "@/components/Navigation";
+import Home from './components/Home'
+import Navigation from '@/components/Navigation'
 
-  export default {
-    name:'App',
-    components:{
-      Home,
-      Navigation
-    }
-
+export default {
+  name: 'App',
+  components: {
+    Home,
+    Navigation
   }
+}
 </script>
 
 <style>
@@ -34,13 +35,13 @@
 .content {
   display: flex;
 }
+
   .NeiR {
     margin-top: 20px;
-    margin-left: 20px;
-    width: 1300px;
+    margin-left: 10px;
+    width: 90%;
     height: 700px;
     border-style: none;
-
   }
 
 </style>

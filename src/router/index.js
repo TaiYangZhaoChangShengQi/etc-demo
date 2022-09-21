@@ -1,13 +1,13 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 
-import Home from "@/components/Home";
-import RegionalMana from "@/components/RegionalMana";
-import SiteMana from "@/components/SiteMana";
-import Map from "@/views/QuYu/Map";
-import RegManaList from "@/views/QuYu/RegManaList";
-import DeviceMana from "@/components/DeviceMana";
-import CarInfoRecord from "@/components/CarInfoRecord";
+import RegionalMana from '@/components/RegionalMana'
+import SiteMana from '@/components/SiteMana'
+import Map from '@/views/QuYu/Map'
+import RegManaList from '@/views/QuYu/RegManaList'
+import DeviceMana from '@/components/DeviceMana'
+import CarInfoRecord from '@/components/CarInfoRecord'
+import ceShi from '@/components/ceShi'
 
 Vue.use(VueRouter)
 
@@ -20,7 +20,7 @@ const routes = [
   {
     path: '/RegMana',
     component: RegionalMana,
-    children:[
+    children: [
       {
         path: '/',
         component: Map
@@ -46,8 +46,11 @@ const routes = [
   {
     path: '/CarInfoRecord',
     component: CarInfoRecord
+  },
+  {
+    path: '/ceShi',
+    component: ceShi
   }
-
 
 ]
 
