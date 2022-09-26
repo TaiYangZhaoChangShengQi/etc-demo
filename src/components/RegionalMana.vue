@@ -1,20 +1,15 @@
 <template>
   <div class="Rebody">
-    <div class="Rebody-total">
+    <div class="rebody-total">
       <div class="Rebody-item-l">
-        <el-select v-model="value1" placeholder="请选择当前区域">
-          <el-option
-              v-for="item in store.data"
-              :key="item.num"
-              :label="item.label"
-              :value="item.num">
-          </el-option>
+        <el-select v-model="value1" placeholder="请选择区域" :disabled="!ss">
+          <el-option v-for="item in store.data" :key="item.num" :label="item.label" :value="item.num" @click.native="showRegional(item.num)"/>
         </el-select>
       </div>
       <div class="Rebody-item-R">
-        <div class="Rebody-item">
-          <el-button type="primary" @click="dialogAddRegVisible = true" :disabled="ss">添加区域</el-button>
-        </div>
+<!--        <div class="Rebody-item">-->
+<!--          <el-button type="primary" @click="dialogAddRegVisible = true" :disabled="ss">添加区域</el-button>-->
+<!--        </div>-->
         <div class="Rebody-item">
           <el-button type="success" @click="clickRegManaList">列表视图</el-button>
         </div>
@@ -30,16 +25,16 @@
     <el-dialog title="添加区域信息" :visible.sync="dialogAddRegVisible">
       <el-form ref="form" :model="addRegForm" label-width="80px">
         <el-form-item label="区域编号">
-          <el-input v-model="addRegForm.num"></el-input>
+          <el-input v-model="addRegForm.num"/>
         </el-form-item>
         <el-form-item label="区域名称">
-          <el-input v-model="addRegForm.label"></el-input>
+          <el-input v-model="addRegForm.label"/>
         </el-form-item>
         <el-form-item label="区域GPS">
-          <el-input v-model="addRegForm.GPS"></el-input>
+          <el-input v-model="addRegForm.GPS"/>
         </el-form-item>
         <el-form-item label="备注">
-          <el-input v-model="addRegForm.info"></el-input>
+          <el-input v-model="addRegForm.info"/>
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="addListReg()">保存</el-button>
@@ -47,7 +42,6 @@
         </el-form-item>
       </el-form>
     </el-dialog>
-
   </div>
 </template>
 
@@ -55,6 +49,7 @@
 import Map from '@/views/QuYu/Map'
 import { store } from '@/store/store'
 import RegManaList from '@/views/QuYu/RegManaList'
+
 
 // 区域管理
 export default {
@@ -66,17 +61,19 @@ export default {
   data () {
     return {
       store,
+      regionData:[],
       options: [
         {
           value: '选项1',
           label: '区域01'
-        }, {
+        },
+        {
           value: '选项2',
           label: '区域02'
         }
       ],
       value1: '',
-      ss: true,
+      ss: true, //可用或禁用开关
       pageName: '区域管理',
       addRegForm: {
         label: '',
@@ -87,6 +84,15 @@ export default {
       },
       dialogAddRegVisible: false
     }
+  },
+  created() {
+    getRegionData().then(res => {
+      console.log(res)
+      this.regionData = res.data
+      console.log(this.regionData)
+    }).catch(err => {
+      console.log(err)
+    })
   },
   methods: {
     clickMap () {
@@ -102,38 +108,35 @@ export default {
       this.store.TrueAddReg(this.addRegForm)
       this.dialogAddRegVisible = false
       this.$refs.child.upRegData()
+    },
+    //显示指定区域的范围以及站点位置
+    showRegional (num) {
+      let num1 = Number(num) - 1
+      this.$refs.child.addPolygonToMap(num1)
     }
-    // 动态控制添加按钮
-
   }
-
 }
-
 </script>
 
 <style scoped>
-    .Rebody-total {
-        display: flex;
-        justify-content: space-between;
-        margin-bottom: 10px;
-    }
+  .rebody-total {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+  .Rebody-item-l {
+    width: 150px;
+  }
+  .Rebody-item {
+    width: 100px;
 
-    .Rebody-item-l {
-        width: 150px;
-    }
-
-
-    .Rebody-item {
-        width: 100px;
-
-    }
-
-    .Rebody-item-R {
-        display: flex;
-        width: 300px;
-        height: 40px;
-        line-height: 40px;
-        text-align: center;
-    }
-
+  }
+  .Rebody-item-R {
+    display: flex;
+    justify-content: flex-end;
+    width: 300px;
+    height: 40px;
+    line-height: 40px;
+    text-align: center;
+  }
 </style>

@@ -6,8 +6,7 @@ import SiteMana from '@/components/SiteMana'
 import Map from '@/views/QuYu/Map'
 import RegManaList from '@/views/QuYu/RegManaList'
 import DeviceMana from '@/components/DeviceMana'
-import CarInfoRecord from '@/components/CarInfoRecord'
-import ceShi from '@/components/ceShi'
+import CarInfoRecord from '@/components/VehicleInfoRecord'
 
 Vue.use(VueRouter)
 
@@ -16,7 +15,6 @@ const routes = [
     path: '/',
     component: Map
   },
-
   {
     path: '/RegMana',
     component: RegionalMana,
@@ -47,11 +45,6 @@ const routes = [
     path: '/CarInfoRecord',
     component: CarInfoRecord
   },
-  {
-    path: '/ceShi',
-    component: ceShi
-  }
-
 ]
 
 const router = new VueRouter({
