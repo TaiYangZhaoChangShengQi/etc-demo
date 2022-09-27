@@ -1,17 +1,19 @@
 <template>
   <div>
     <div id="map"></div>
-    <button @click="testFunc">测试按钮</button>
+    <button @click="testFunc">ccc</button>
   </div>
 </template>
 
 <script>
 import AMapLoader from '@amap/amap-jsapi-loader'
+import {store} from "@/store/store";
 
 export default {
   name: 'Map',
   data () {
     return {
+      store,
       gps: '',
       newMap:'',
       //覆盖物对象集
@@ -64,9 +66,11 @@ export default {
       ],
     }
   },
+
   mounted () {
     this.initMap()
   },
+
   methods: {
     initMap () {
       AMapLoader.load({
@@ -92,16 +96,18 @@ export default {
         console.log(e)
       })
     },
+
     //测试用函数
     testFunc () {
-      console.log(this.markerList)
+      console.log(typeof this.coordinateList)
     },
+
     //创建默认多边形覆盖物
     createDefaultPolygon () {
       //创建多边形覆盖物
-      for (let i=0 ; i<3 ; i++) {
+      for (let i=0 ; i<this.store.regionData.length ; i++) {
         this.polygonList[i] = new AMap.Polygon({
-          path: this.coordinateList[i],          //设置线覆盖物路径
+          path: this.store.regionData[i].area,          //设置线覆盖物路径
           fillColor: '#ccebc5',
           strokeOpacity: 1,
           fillOpacity: 0,
@@ -112,12 +118,14 @@ export default {
         });
       }
     },
+
     //添加指定多边形覆盖物到地图
     addPolygonToMap (polygon) { //polygon 传入多边形覆盖物对象或数组对象或区域序号
       this.newMap.remove(this.polygonList) //先清除覆盖物，再添加覆盖物，以达到只显示一个覆盖物的效果
       this.newMap.add(this.polygonList[polygon]);
-      this.newMap.setCenter(this.coordinateList[polygon][3]) //中心点随覆盖物区域的选择变动
+      this.newMap.setCenter(this.coordinateList[polygon][1]) //中心点随覆盖物区域的选择变动
     },
+
     //实例化点标记
     addMarker () {
       marker = new AMap.Marker({
@@ -126,6 +134,7 @@ export default {
         offset: new AMap.Pixel(-13, -30)
       });
     },
+
     //添加站点标记点到地图
     addMarkerToMap (num) { //传入的是区域序号
 

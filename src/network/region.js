@@ -9,6 +9,7 @@ export function getRegionServeData () {
     method:'get'
   })
 }
+
 //增
 export function addRegionServeData () {
   return request({
@@ -16,6 +17,7 @@ export function addRegionServeData () {
     method:'post'
   })
 }
+
 //删
 export function deleteRegionServeData () {
   return request({
@@ -23,6 +25,7 @@ export function deleteRegionServeData () {
     method:'delete'
   })
 }
+
 //改
 export function updateRegionServeData (obj,id) { //id为区域id
   return request({

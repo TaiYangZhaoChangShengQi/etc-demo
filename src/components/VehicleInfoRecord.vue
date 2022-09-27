@@ -17,26 +17,14 @@
         <el-table-column align="center" label="结束时间" min-width="200" prop="endTime" sortable/>
         <el-table-column align="center" label="识别次数" width="150" prop="frequency"/>
         <el-table-column align="center" label="识别站点" width="150" prop="siteName" sortable/>
-<!--        <el-table-column fixed="right" width="160" align="right">-->
-<!--          <template slot="header" slot-scope="scope" >-->
-<!--            <el-input v-model="search" size="medium " placeholder="输入车牌号搜索"/>-->
-<!--          </template>-->
-<!--          <template slot-scope="scope">-->
-<!--            <el-button size="small" type="warning" @click="editVehicleData(scope.row.licensePlate)">修改</el-button>-->
-<!--            <el-button size="small" type="danger" @click="VehicleDelete(scope.row.licensePlate)">删除</el-button>-->
-<!--          </template>-->
-<!--        </el-table-column>-->
       </el-table>
     </div>
 
     <!--添加车辆信息对话框             -->
     <el-dialog title="提示" :visible.sync="dialogAddVehicleVisible" width="30%">
       <el-form ref="form" :model="vehicleForm" label-width="80px">
-        <el-form-item label="车辆编号">
-          <el-input v-model="vehicleForm.virId" disabled/>
-        </el-form-item>
         <el-form-item label="车牌号">
-          <el-input v-model="vehicleForm.licensePlate" disabled/>
+          <el-input v-model="vehicleForm.licensePlate"/>
         </el-form-item>
         <el-form-item label="OBU ID">
           <el-input v-model="vehicleForm.obuId"/>
@@ -51,10 +39,13 @@
           <el-input v-model="vehicleForm.frequency"/>
         </el-form-item>
         <el-form-item label="识别站点">
-          <el-input v-model="vehicleForm.siteName"/>
+          <el-input v-model="vehicleForm.siteId"/>
+        </el-form-item>
+        <el-form-item label="识别识别">
+          <el-input v-model="vehicleForm.devId"/>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="submitVehicleData()">保存</el-button>
+          <el-button type="primary" @click="addVehicle()">立即创建</el-button>
           <el-button @click="dialogVehicleVisible = false">取消</el-button>
         </el-form-item>
       </el-form>
@@ -63,7 +54,7 @@
 </template>
 
 <script>
-import {getVehicleServeData} from "@/network/vehicle";
+import {getVehicleServeData,addVehicleServeData} from "@/network/vehicle";
 
 
 export default {
@@ -72,7 +63,15 @@ export default {
   data () {
     return {
       vehicleData:[], //渲染列表
-      vehicleForm: {}, //修改信息的表单
+      vehicleForm: {   //添加信息的表单
+        obuId:'',
+        licensePlate:'',
+        startTime:'',
+        endTime: '',
+        frequency: '', //识别次数
+        siteId: '',
+        devId: '',
+      },
       PageName: '车辆信息记录',
       dialogAddVehicleVisible:false,
       search: ''
@@ -94,27 +93,16 @@ export default {
       })
     },
 
-    // //修改车辆信息
-    // editVehicleData (licensePlate) { //车牌
-    //   this.dialogVehicleVisible = true
-    //   for (let i = 0; i < this.vehicleData.length; i++) {
-    //     if (licensePlate === this.vehicleData[i].licensePlate) {
-    //       const c = JSON.parse(JSON.stringify(this.vehicleData[i]))
-    //       this.vehicleForm = c
-    //     }
-    //   }
-    // },
-    //
-    // // 保存修改
-    // submitVehicleData () {
-    //   updateVehicleServeData(this.vehicleForm).then(res => {
-    //     console.log(res)
-    //   }).catch(err => {
-    //     console.log(err)
-    //   })
-    //   this.reload()
-    //   this.dialogVehicleVisible = false
-    // },
+    //添加
+    addVehicle () {
+      addVehicleServeData(this.vehicleForm).then(res => {
+        console.log(res)
+        this.reload()
+      }).catch(err => {
+        console.log(err)
+      })
+      this.dialogAddVehicleVisible = false
+    },
   }
 }
 </script>

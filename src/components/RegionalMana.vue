@@ -3,13 +3,13 @@
     <div class="rebody-total">
       <div class="Rebody-item-l">
         <el-select v-model="value1" placeholder="请选择区域" :disabled="!ss">
-          <el-option v-for="item in store.data" :key="item.num" :label="item.label" :value="item.num" @click.native="showRegional(item.num)"/>
+          <el-option v-for="item in this.store.regionData" :key="item.id" :label="item.name" :value="item.id" @click.native="showRegional(item.id)"/>
         </el-select>
       </div>
       <div class="Rebody-item-R">
-<!--        <div class="Rebody-item">-->
-<!--          <el-button type="primary" @click="dialogAddRegVisible = true" :disabled="ss">添加区域</el-button>-->
-<!--        </div>-->
+        <div class="Rebody-item">
+          <el-button type="primary" @click="dialogAddRegVisible = true" :disabled="ss">添加区域</el-button>
+        </div>
         <div class="Rebody-item">
           <el-button type="success" @click="clickRegManaList">列表视图</el-button>
         </div>
@@ -49,6 +49,7 @@
 import Map from '@/views/QuYu/Map'
 import { store } from '@/store/store'
 import RegManaList from '@/views/QuYu/RegManaList'
+import {getRegionServeData} from "@/network/region";
 
 
 // 区域管理
@@ -62,16 +63,6 @@ export default {
     return {
       store,
       regionData:[],
-      options: [
-        {
-          value: '选项1',
-          label: '区域01'
-        },
-        {
-          value: '选项2',
-          label: '区域02'
-        }
-      ],
       value1: '',
       ss: true, //可用或禁用开关
       pageName: '区域管理',
@@ -85,15 +76,11 @@ export default {
       dialogAddRegVisible: false
     }
   },
+
   created() {
-    getRegionData().then(res => {
-      console.log(res)
-      this.regionData = res.data
-      console.log(this.regionData)
-    }).catch(err => {
-      console.log(err)
-    })
+    this.getRegionData()
   },
+
   methods: {
     clickMap () {
       this.$router.push('/RegMana/Map')
@@ -103,12 +90,35 @@ export default {
       this.$router.push('/RegMana/RegManaList')
       this.ss = false
     },
-    // 添加区域
-    addListReg () {
-      this.store.TrueAddReg(this.addRegForm)
-      this.dialogAddRegVisible = false
-      this.$refs.child.upRegData()
+
+    //列表
+    getRegionData () {
+      getRegionServeData().then(res => {
+        console.log(res)
+        this.store.regionData = res.data
+        this.getToArray()
+        console.log('DATA', this.store.regionData)
+      }).catch(err => {
+        console.log(err)
+      })
     },
+
+    //转换为数组
+    getToArray () {
+      for (let i = 0; i < this.store.regionData.length; i++) {
+        let c = JSON.parse(this.store.regionData[i].area)
+        this.store.regionData[i].area = c
+      }
+    },
+
+    //TODO
+    // // 添加区域
+    // addListReg () {
+    //   this.store.TrueAddReg(this.addRegForm)
+    //   this.dialogAddRegVisible = false
+    //   this.$refs.child.upRegData()
+    // },
+
     //显示指定区域的范围以及站点位置
     showRegional (num) {
       let num1 = Number(num) - 1

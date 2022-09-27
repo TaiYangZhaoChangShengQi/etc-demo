@@ -3,7 +3,7 @@ import axios from 'axios'
 export function request (config) {
   // 创建axios实例
   const instance = axios.create({
-    baseURL: 'http://192.168.1.102:8080/', //1214宿舍wifi
+    baseURL: 'http://192.168.1.105:8080/', //1214宿舍wifi
     // baseURL:'http://10.248.94.8:8080/',  //206
     timeout: 5000
   })
@@ -20,7 +20,7 @@ export function request (config) {
   instance.interceptors.response.use( res => {
     return res.data
   },err => {
-    console.log(err)
+    console.log()
   })
 
   // 发送网络请求

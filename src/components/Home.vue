@@ -15,7 +15,7 @@ export default {
  .B-header {
    width: auto;
    height: 50px;
-   background-color: #003300;
+   background-color: #252B48;
    padding-top: 1px;
    padding-left: 10px;
    box-shadow: 0 2px 4px rgba(0, 0, 0, .12), 0 0 6px rgba(0, 0, 0, .04);

@@ -1,8 +1,5 @@
 <template>
     <div class="DevBody">
-      <!--        <div class="Dev-1">-->
-      <!--            <el-tree :data="store.data" :props="defaultProps" @node-click="handleNodeClick"></el-tree>-->
-      <!--        </div>-->
       <div class="Dev-2">
         <div class="Dev-2-1">
           <div class="Dev-2-1-2">{{PageName}}</div>
@@ -14,21 +11,21 @@
           <el-table
             :data="deviceData.filter(data => !search || data.devName.toLowerCase().includes(search.toLowerCase()))"
             style="width: 100%">
-              <el-table-column align="center" fixed label="设备编号" width="100" prop="devNumber"/>
-              <el-table-column align="center" label="设备名称" width="150" prop="devName"/>
-              <el-table-column align="center" label="所属站点" width="150" prop="siteName"/>
+              <el-table-column align="center" fixed label="设备编号" min-width="100" prop="devNumber"/>
+              <el-table-column align="center" label="设备名称" min-width="100" prop="devName"/>
+              <el-table-column align="center" label="所属站点" min-width="150" prop="siteName"/>
               <el-table-column align="center" label="IP地址" min-width="150" prop="ip"/>
               <el-table-column align="center" label="MAC地址" min-width="160" prop="mac"/>
               <el-table-column align="center" label="设备类型" min-width="100" prop="typeName"/>
               <el-table-column align="center" label="备注" min-width="100" prop="remarks"/>
               <!--搜索              -->
-              <el-table-column fixed="right" width="150" align="right">
+              <el-table-column fixed="right" width="200" align="right">
                 <template slot="header" slot-scope="scope">
                   <el-input v-model="search" size="medium" placeholder="输入设备名称搜索"/>
                 </template>
                 <template v-slot="scope">
-                  <el-button size="small" type="warning" @click="editDevData(scope.row.devNumber) ">修改</el-button>
-                  <el-button size="small" type="danger" @click="deleteDevDate(scope.row.devNumber)">删除</el-button>
+                  <el-button size="medium" type="warning" @click="editDevData(scope.row.devNumber) ">修改</el-button>
+                  <el-button size="medium" type="danger" @click="deleteDevDate(scope.row.devId)">删除</el-button>
                 </template>
               </el-table-column>
             </el-table>
@@ -39,34 +36,31 @@
       <el-dialog title="添加设备" :visible.sync="dialogFormVisible">
         <el-form ref="form" :model="form" label-width="80px">
           <el-form-item label="绑定站点">
-            <el-select v-model="form.SiteLabel" placeholder="请选择站点">
-              <el-option label="站点 1-1" value="站点 1-1"/>
-              <el-option label="站点 1-2" value="站点 1-2"/>
+            <el-select v-model="form.siteId" placeholder="请选择站点">
+              <el-option label="站点1" value="1"/>
+              <el-option label="站点2" value="2"/>
             </el-select>
           </el-form-item>
           <el-form-item label="设备编号">
-            <el-input v-model="form.DevNum"/>
+            <el-input v-model="form.devNumber"/>
           </el-form-item>
           <el-form-item label="设备名称">
-            <el-input v-model="form.label"/>
+            <el-input v-model="form.devName"/>
           </el-form-item>
           <el-form-item label="设备IP">
-            <el-input v-model="form.IP"/>
+            <el-input v-model="form.ip"/>
           </el-form-item>
           <el-form-item label="设备MAC">
-            <el-input v-model="form.MAC"/>
+            <el-input v-model="form.mac"/>
           </el-form-item>
-          <el-form-item label="设备类型">
-            <el-input v-model="form.DevType"/>
-          </el-form-item>
-          <el-form-item label="设备心跳">
-            <el-input v-model="form.DevBeat"/>
+          <el-form-item label="设备类型(Id)">
+            <el-input v-model="form.typeId"/>
           </el-form-item>
           <el-form-item label="备注">
-            <el-input type="textarea" v-model="form.info"/>
+            <el-input type="textarea" v-model="form.remarks"/>
           </el-form-item>
           <el-form-item>
-            <el-button type="primary" @click="onDevSubmit(form.SiteLabel)">添加</el-button>
+            <el-button type="primary" @click="addDev()">添加</el-button>
             <el-button @click="dialogFormVisible = false">取消</el-button>
           </el-form-item>
         </el-form>
@@ -105,7 +99,7 @@
 </template>
 
 <script>
-import {getDeviceServeData,updateDeviceServeData} from "@/network/device";
+import {getDeviceServeData,addDeviceServeData,deleteDeviceServeData,updateDeviceServeData} from "@/network/device";
 
 export default {
   name: 'DeviceMana',
@@ -123,16 +117,14 @@ export default {
       PageName: '设备管理',
       search: '',
       form: {
-        label: '',
-        SiteLabel: '',
-        DevNum: '',
-        IP: '',
-        MAC: '',
-        DevType: '',
-        DevBeat: '',
-        info: ''
+        siteId:'',
+        devNumber: '',
+        devName: '',
+        ip: '',
+        mac: '',
+        typeId: '',
+        remarks: ''
       },
-
     }
   },
 
@@ -152,11 +144,17 @@ export default {
     },
 
     // 添加设备
-    // onDevSubmit (name) {
-    //   this.store.addDev(name, this.form)
-    //   console.log(this.form)
-    //   this.UpDevData()
-    // },
+    addDev () {
+      addDeviceServeData(this.form).then(res => {
+        console.log(res)
+        this.reload()
+      }).catch(err => {
+        console.log(err)
+        alert('错误：'+ err.code)
+      })
+      this.dialogFormVisible = false
+    },
+
     // 修改设备信息
     editDevData (devNum) {
       this.dialogChangeDevFormVisible = true
@@ -172,29 +170,22 @@ export default {
     submitDevData () {
       updateDeviceServeData(this.devForm).then(res => {
         console.log(res)
+        this.reload()
       }).catch(err => {
         console.log(err)
       })
-      this.reload()
       this.dialogChangeDevFormVisible = false
     },
 
-    // // 删除设备信息
-    // deleteDevDate (index1) {
-    //   for (let j = 0; j < this.store.data.length; j++) {
-    //     for (let i = 0; i < this.store.data[j].children.length; i++) {
-    //       for (let k = 0; k < this.store.data[j].children[i].children.length; k++) {
-    //         if (index1 === this.store.data[j].children[i].children[k].DevNum) {
-    //           console.log(111)
-    //           this.store.data[j].children[i].children.splice(k, 1)
-    //           console.log(this.store.data[j].children[i].children)
-    //         }
-    //       }
-    //     }
-    //   }
-    //   this.UpDevData()
-    //   console.log(this.DevData)
-    // }
+    // 删除设备信息
+    deleteDevDate (id) { //设备id
+      deleteDeviceServeData(id).then(res => {
+        console.log('res',res)
+        this.reload()
+      }).catch(err => {
+        console.log('err',err)
+      })
+    }
   },
 }
 </script>

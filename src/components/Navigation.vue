@@ -1,5 +1,5 @@
 <template>
-  <div class="Nav">
+  <div class="nav-content">
     <div class="nav-left" :data-mytype=1 @click="clickNum($event)">
       <i class="el-icon-location" :class="isActive==='1'?'active':'{}'"/>
       <router-link to="/RegMana">区域管理</router-link>
@@ -15,6 +15,10 @@
     <div class="nav-left" :data-mytype=4 @click="clickNum($event)">
       <i class="el-icon-upload" :class="isActive==='4'?'active':'{}'"/>
       <router-link to="/CarInfoRecord">车辆信息</router-link>
+    </div>
+    <div class="nav-left" :data-mytype=5 @click="clickNum($event)">
+      <i class="el-icon-upload" :class="isActive==='5'?'active':'{}'"/>
+      <router-link to="/DeviceBeatMana">设备心跳</router-link>
     </div>
   </div>
 </template>
@@ -36,25 +40,25 @@ export default {
 </script>
 
 <style>
-  .Nav {
-    height: 988px;
+  .nav-content {
     width: 150px;
-    background-color: #003333;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, .12), 0 0 6px rgba(0, 0, 0, .04);
+    height: 900px;
+    background-color: rgba(0,0,0,0);
+    box-shadow: 0 2px 4px rgba(0,0 ,0 , .15);
   }
-  .Nav .nav-left {
+  .nav-content .nav-left {
     padding-left: 10px;
     padding-top: 50px;
-    font-size: 18px;
+    font-size: 16px;
     font-weight: 200;
-    color: white;
+    color: rgba(0,0,0,.85);
   }
   .active {
     color: #2E8CE7;
   }
   a {
     text-decoration: none;
-    color: white;
+    color: rgba(0,0,0,.85);;
   }
   .router-link-active {
     color: #2E8CE7;

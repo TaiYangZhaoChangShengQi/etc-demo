@@ -13,12 +13,19 @@ export function getDeviceServeData () {
 //增
 export function addDeviceServeData (obj) {
   return request({
-    url:'/posts',
-    method:obj,
+    url:'/device/add',
+    method:'post',
+    params:obj
   })
 }
 
 //删
+export function deleteDeviceServeData (id) {
+  return request({
+    url:`/device/${id}`,
+    method:'delete',
+  })
+}
 
 //改
 export function updateDeviceServeData (obj) {

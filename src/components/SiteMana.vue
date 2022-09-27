@@ -1,8 +1,5 @@
 <template>
   <div class="SiteBody">
-    <!--        <div class="site-item-1">-->
-    <!--            <el-tree :data="store.data" :props="defaultProps" @node-click="handleNodeClick"></el-tree>-->
-    <!--        </div>-->
     <div class="site-item-2">
       <div class="site-item-2-1">
         <div class="site-item-2-1-2">
@@ -33,15 +30,14 @@
               <div>{{scope.row.name}}</div>
             </template>
           </el-table-column>
-          <el-table-column align="center" label="备注" min-width="200" prop="remarks">
-          </el-table-column>
+          <!--搜索          -->
           <el-table-column fixed="right" width="200" align="right">
             <template slot="header" slot-scope="scope">
               <el-input v-model="search" size="medium" placeholder="输入站点名字搜索"/>
             </template>
             <template v-slot="scope">
-              <el-button type="warning" @click="editSiteData(scope.row.siteNumber)">修改</el-button>&nbsp;&nbsp;&nbsp;
-              <el-button type="danger" @click="deleteSite(scope.row.SiteNum)">删除</el-button>
+              <el-button size="medium" type="warning" @click="editSiteData(scope.row.siteNumber)">修改</el-button>&nbsp;&nbsp;&nbsp;
+              <el-button size="medium" type="danger" @click="deleteSite(scope.row.siteId)">删除</el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -99,7 +95,7 @@
 </template>
 
 <script>
-import {getSiteServeData,updateSiteServeData,addSiteServeData} from "@/network/site";
+import {getSiteServeData,updateSiteServeData,addSiteServeData,deleteSiteServeData} from "@/network/site";
 
 export default {
   name: 'SiteMana',
@@ -147,6 +143,7 @@ export default {
         console.log("res " , res.data)
         this.SiteData.splice(0)
         this.SiteData = res.data
+        console.log("site " , this.SiteData)
       }).catch(err => {
         console.log(err)
       })
@@ -156,10 +153,10 @@ export default {
     addSite () {
       addSiteServeData(this.form).then(res => {
         console.log(res)
+        this.reload()
       }).catch(err => {
         console.log(err)
       })
-      this.reload()
       this.dialogFormVisible = false
     },
 
@@ -178,25 +175,22 @@ export default {
     submitSiteData () {
       updateSiteServeData(this.SiteForm).then(res => {
         console.log(res)
+        this.reload()  //放这里，网络请求是异步的，收到服务器反馈后再刷新
       }).catch(err => {
         console.log(err)
       })
-      this.reload()
       this.dialogChangeVisible = false
-      alert('成功')
     },
 
     // 删除站点函数
-    // deleteSite (index1) { // index1 站点编号
-    //   for (let i = 0; i < this.store.data.length; i++) {
-    //     for (let j = 0; j < this.store.data[i].children.length; j++) {
-    //       if (index1 === this.store.data[i].children[j].SiteNum) {
-    //         this.store.data[i].children.splice(j, 1)
-    //       }
-    //     }
-    //   }
-    //   this.UpData()
-    // }
+    deleteSite (id) { // id 站点id,stieId
+      deleteSiteServeData(id).then(res => {
+        console.log('res',res)
+        this.reload()
+      }).catch(err => {
+        console.log('err',err)
+      })
+    }
 
   },
 

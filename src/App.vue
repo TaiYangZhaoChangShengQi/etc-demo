@@ -50,13 +50,18 @@ export default {
     margin: 0;
   }
   .content {
-    display: flex;
+    height: 100%;
+  }
+  .Nav {
+    width: 150px;
+    height: 100%;
+    float: left;
   }
   .View {
-    margin-top: 20px;
     margin-left: 10px;
-    width: 90%;
-    height: 700px;
+    padding: 20px;
+    overflow: hidden;
+    height: 100%;
     border-style: none;
   }
 </style>

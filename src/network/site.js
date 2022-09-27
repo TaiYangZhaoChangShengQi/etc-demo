@@ -9,6 +9,7 @@ export function getSiteServeData () {
     method:'get'
   })
 }
+
 //增
 export function addSiteServeData (obj) {
   return request({
@@ -17,13 +18,15 @@ export function addSiteServeData (obj) {
     params:obj
   })
 }
+
 //删
-export function deleteSiteServeData () {
+export function deleteSiteServeData (id) {
   return request({
-    url:'/site/add',
-    method:'delete'
+    url:`/site/${id}`,
+    method:'delete',
   })
 }
+
 //改
 export function updateSiteServeData (obj) {
   return request({

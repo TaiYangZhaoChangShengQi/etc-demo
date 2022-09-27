@@ -7,6 +7,7 @@ import Map from '@/views/QuYu/Map'
 import RegManaList from '@/views/QuYu/RegManaList'
 import DeviceMana from '@/components/DeviceMana'
 import CarInfoRecord from '@/components/VehicleInfoRecord'
+import DeviceBeatMana from "@/components/DeviceBeatMana";
 
 Vue.use(VueRouter)
 
@@ -35,7 +36,7 @@ const routes = [
   },
   {
     path: '/SiteMana',
-    component: SiteMana
+    component: SiteMana,
   },
   {
     path: '/DeviceMana',
@@ -45,6 +46,10 @@ const routes = [
     path: '/CarInfoRecord',
     component: CarInfoRecord
   },
+  {
+    path: '/DeviceBeatMana',
+    component: DeviceBeatMana
+  }
 ]
 
 const router = new VueRouter({
