@@ -1,63 +1,62 @@
 <template>
     <div class="DevBody">
-      <div class="Dev-2">
-        <div class="Dev-2-1">
-          <div class="Dev-2-1-2">{{PageName}}</div>
-          <div class="Dev-2-1-1">
+      <div class="dev-item">
+        <div class="dev-item-line">
+          <div class="dev-item-line-path">{{PageName}}</div>
+          <div class="dev-item-line-button">
               <el-button type="primary" @click="dialogFormVisible = true">添加设备</el-button>
           </div>
         </div>
-        <div class="Dev-2-2">
+        <div class="dev-item-table">
           <el-table
             :data="deviceData.filter(data => !search || data.devName.toLowerCase().includes(search.toLowerCase()))"
             style="width: 100%">
-              <el-table-column align="center" fixed label="设备编号" min-width="100" prop="devNumber"/>
-              <el-table-column align="center" label="设备名称" min-width="100" prop="devName"/>
-              <el-table-column align="center" label="所属站点" min-width="150" prop="siteName"/>
-              <el-table-column align="center" label="IP地址" min-width="150" prop="ip"/>
-              <el-table-column align="center" label="MAC地址" min-width="160" prop="mac"/>
-              <el-table-column align="center" label="设备类型" min-width="100" prop="typeName"/>
-              <el-table-column align="center" label="备注" min-width="100" prop="remarks"/>
-              <!--搜索              -->
-              <el-table-column fixed="right" width="200" align="right">
-                <template slot="header" slot-scope="scope">
-                  <el-input v-model="search" size="medium" placeholder="输入设备名称搜索"/>
-                </template>
-                <template v-slot="scope">
-                  <el-button size="medium" type="warning" @click="editDevData(scope.row.devNumber) ">修改</el-button>
-                  <el-button size="medium" type="danger" @click="deleteDevDate(scope.row.devId)">删除</el-button>
-                </template>
-              </el-table-column>
+            <el-table-column align="center" fixed label="设备编号" min-width="100" prop="devNumber"/>
+            <el-table-column align="center" label="设备名称" min-width="100" prop="devName"/>
+            <el-table-column align="center" label="所属站点" min-width="150" prop="siteName"/>
+            <el-table-column align="center" label="IP地址" min-width="150" prop="ip"/>
+            <el-table-column align="center" label="MAC地址" min-width="160" prop="mac"/>
+            <el-table-column align="center" label="设备类型" min-width="100" prop="typeName"/>
+            <el-table-column align="center" label="备注" min-width="100" prop="remarks"/>
+            <!--搜索              -->
+            <el-table-column fixed="right" width="200" align="right">
+              <template slot="header" slot-scope="scope">
+                <el-input v-model="search" size="medium" placeholder="输入设备名称搜索"/>
+              </template>
+              <template v-slot="scope">
+                <el-button size="medium" type="warning" @click="editDevData(scope.row.devNumber) ">修改</el-button>
+                <el-button size="medium" type="danger" @click="deleteDevDate(scope.row.devId)">删除</el-button>
+              </template>
+            </el-table-column>
             </el-table>
         </div>
       </div>
 
       <!--添加设备对话框 -->
       <el-dialog title="添加设备" :visible.sync="dialogFormVisible">
-        <el-form ref="form" :model="form" label-width="80px">
-          <el-form-item label="绑定站点">
+        <el-form ref="form" :model="form" label-width="100px">
+          <el-form-item label="站点ID">
             <el-select v-model="form.siteId" placeholder="请选择站点">
-              <el-option label="站点1" value="1"/>
-              <el-option label="站点2" value="2"/>
+              <el-option v-for="item in store.siteData" :key="item.siteId" :label="item.siteName" :value="item.siteId"/>
             </el-select>
           </el-form-item>
           <el-form-item label="设备编号">
-            <el-input v-model="form.devNumber"/>
+            <el-input v-model="form.devNumber" style="width: 300px"/>
           </el-form-item>
           <el-form-item label="设备名称">
-            <el-input v-model="form.devName"/>
+            <el-input v-model="form.devName" style="width: 300px"/>
           </el-form-item>
           <el-form-item label="设备IP">
-            <el-input v-model="form.ip"/>
+            <el-input v-model="form.ip" style="width: 300px"/>
           </el-form-item>
           <el-form-item label="设备MAC">
-            <el-input v-model="form.mac"/>
+            <el-input v-model="form.mac" style="width: 300px"/>
           </el-form-item>
           <el-form-item label="设备类型(Id)">
-            <el-input v-model="form.typeId"/>
+            <el-input v-model="form.typeId" style="width: 300px"/>
           </el-form-item>
           <el-form-item label="备注">
-            <el-input type="textarea" v-model="form.remarks"/>
+            <el-input type="textarea" v-model="form.remarks" style="width: 300px"/>
           </el-form-item>
           <el-form-item>
             <el-button type="primary" @click="addDev()">添加</el-button>
@@ -100,12 +99,14 @@
 
 <script>
 import {getDeviceServeData,addDeviceServeData,deleteDeviceServeData,updateDeviceServeData} from "@/network/device";
+import {store} from "@/store/store";
 
 export default {
   name: 'DeviceMana',
   inject:['reload'],
   data () {
     return {
+      store,
       dialogFormVisible: false, //添加设备 显示开关
       dialogChangeDevFormVisible: false,  //修改设备 显示开关
       deviceData: [], //渲染列表
@@ -138,6 +139,7 @@ export default {
       getDeviceServeData().then(res => {
         console.log("res " , res.data)
         this.deviceData = res.data
+
       }).catch(err => {
         console.log(err)
       })
@@ -195,25 +197,19 @@ export default {
     display: flex;
     width: 100%;
   }
-  .Dev-1 {
-    margin-right: 15px;
-    width: 190px;
-    height: 650px;
-    box-shadow: 0 12px 24px 5px rgba(0, 0, 0, .16);
-  }
 
-  .Dev-2 {
+  .dev-item {
     width: 100%;
   }
 
-  .Dev-2-1 {
+  .dev-item-line {
     display: flex;
     margin-bottom: 10px;
     justify-content: space-between;
     width: 100%;
   }
 
-  .Dev-2-1-2 {
+  .dev-item-line-path {
     height: 40px;
     font-size: 18px;
     font-weight: 400;
@@ -221,7 +217,7 @@ export default {
     color: rgba(0,0,0,.85);
   }
 
-  .Dev-2-2 {
+  .dev-item-table {
     box-shadow: 0 2px 4px rgba(0, 0, 0, .12), 0 0 6px rgba(0, 0, 0, .04);
   }
   .el-dialog {

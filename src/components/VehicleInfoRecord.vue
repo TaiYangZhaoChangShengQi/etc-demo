@@ -3,7 +3,7 @@
     <div class="vehicle-line">
       <div class="vehicle-page">{{PageName}}</div>
       <div class="vehicle-button">
-        <el-button type="primary" @click="dialogAddVehicleVisible = true">添加设备</el-button>
+        <el-button type="primary" @click="dialogAddVehicleVisible = true">添加车辆</el-button>
       </div>
     </div>
     <div class="vehicle-list">
@@ -24,25 +24,29 @@
     <el-dialog title="提示" :visible.sync="dialogAddVehicleVisible" width="30%">
       <el-form ref="form" :model="vehicleForm" label-width="80px">
         <el-form-item label="车牌号">
-          <el-input v-model="vehicleForm.licensePlate"/>
+          <el-input v-model="vehicleForm.licensePlate" style="width: 300px"/>
         </el-form-item>
         <el-form-item label="OBU ID">
-          <el-input v-model="vehicleForm.obuId"/>
+          <el-input v-model="vehicleForm.obuId" style="width: 300px"/>
         </el-form-item>
         <el-form-item label="开始时间">
-          <el-input v-model="vehicleForm.startTime"/>
+          <el-input v-model="vehicleForm.startTime" style="width: 300px"/>
         </el-form-item>
         <el-form-item label="结束时间">
-          <el-input v-model="vehicleForm.endTime"/>
+          <el-input v-model="vehicleForm.endTime" style="width: 300px"/>
         </el-form-item>
         <el-form-item label="识别次数">
-          <el-input v-model="vehicleForm.frequency"/>
+          <el-input v-model="vehicleForm.frequency" style="width: 300px"/>
         </el-form-item>
-        <el-form-item label="识别站点">
-          <el-input v-model="vehicleForm.siteId"/>
+        <el-form-item label="站点ID">
+          <el-select v-model="vehicleForm.siteId" placeholder="请选择站点">
+            <el-option v-for="item in store.siteData" :key="item.siteId" :label="item.siteName" :value="item.siteId"/>
+          </el-select>
         </el-form-item>
-        <el-form-item label="识别识别">
-          <el-input v-model="vehicleForm.devId"/>
+        <el-form-item label="识别设备">
+          <el-select v-model="vehicleForm.devId" placeholder="请选择设备">
+            <el-option v-for="item in store.vehicleData" :key="item.devId" :label="item.devName" :value="item.devId"/>
+          </el-select>
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="addVehicle()">立即创建</el-button>
@@ -55,6 +59,7 @@
 
 <script>
 import {getVehicleServeData,addVehicleServeData} from "@/network/vehicle";
+import {store} from "@/store/store";
 
 
 export default {
@@ -62,6 +67,7 @@ export default {
   inject:['reload'],
   data () {
     return {
+      store,
       vehicleData:[], //渲染列表
       vehicleForm: {   //添加信息的表单
         obuId:'',
@@ -88,6 +94,7 @@ export default {
       getVehicleServeData().then(res => {
         console.log("res " , res.data)
         this.vehicleData = res.data
+        this.store.vehicleData = res.data
       }).catch(err => {
         console.log(err)
       })

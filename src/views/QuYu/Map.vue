@@ -21,49 +21,7 @@ export default {
       //点标记对象的坐标集
       markerList:[[],[],[]],
       //覆盖物坐标集
-      coordinateList:[
-        [
-          [121.673489, 31.103474],
-          [121.469556, 31.150497],
-          [121.440717, 31.10171],
-          [121.426297, 31.05231],
-          [121.465436, 30.979928],
-          [121.493588, 30.899832],
-          [121.630231, 30.898065],
-          [121.766873, 30.912205],
-          [121.829358, 30.9605],
-          [121.88223, 30.968154],
-          [121.887723, 31.009947],
-          [121.900769, 31.057604],
-          [121.833478, 31.110529],
-        ],
-        [
-          [120.802136, 31.368914],
-          [120.832349, 31.370673],
-          [120.837842, 31.389432],
-          [120.867368, 31.390604],
-          [120.883847, 31.404084],
-          [120.890027, 31.412875],
-          [120.920239, 31.42225],
-          [120.982037, 31.429282],
-          [121.089154, 31.344873],
-          [121.069241, 31.299707],
-          [120.931226, 31.256281],
-          [120.78703, 31.26039],
-          [120.719052, 31.305574],
-        ],
-        [
-          [121.152954, 31.241758],
-          [121.146145, 31.140999],
-          [121.16589, 31.115356],
-          [121.225804, 31.090871],
-          [121.292526, 31.097284],
-          [121.328611, 31.09845],
-          [121.432099, 31.177122],
-          [121.370823, 31.216724],
-          [121.331334, 31.219635],
-        ]
-      ],
+      drawPolygonPath:[],
     }
   },
 
@@ -77,7 +35,7 @@ export default {
         key: 'e0182f82d3a2e2470ca386ea85595acc', // 申请好的Web端开发者Key，首次调用 load 时必填
         version: '2.0', // 指定要加载的 JSAPI 的版本，缺省时默认为 1.4.15
         plugins: ['AMap.AutoComplete', 'AMap.ElasticMarker', 'AMap.TileLayer', 'AMap.PlaceSearch', 'AMap.Scale',"AMap.MarkerCluster",
-          'AMap.OverView', 'AMap.ToolBar', 'AMap.MapType', 'AMap.PolyEditor', 'AMap.CircleEditor', 'AMap.ControlBar'] // 需要使用的的插件列表，如比例尺'AMap.Scale'等
+          'AMap.OverView', 'AMap.ToolBar','AMap.MouseTool', 'AMap.MapType', 'AMap.PolyEditor', 'AMap.CircleEditor', 'AMap.ControlBar'] // 需要使用的的插件列表，如比例尺'AMap.Scale'等
       }).then((AMap) => {
         this.newMap = new AMap.Map('map', {
           resizeEnable: true,
@@ -92,6 +50,7 @@ export default {
         })
         //实例化默认覆盖物
         this.createDefaultPolygon()
+        this.addMarker()
       }).catch(e => {
         console.log(e)
       })
@@ -99,7 +58,7 @@ export default {
 
     //测试用函数
     testFunc () {
-      console.log(typeof this.coordinateList)
+      console.log(this.store.siteData)
     },
 
     //创建默认多边形覆盖物
@@ -112,7 +71,7 @@ export default {
           strokeOpacity: 1,
           fillOpacity: 0,
           strokeColor: '#6699FF',
-          strokeWeight: 2,
+          strokeWeight: 3,
           strokeStyle: 'solid',
           strokeDasharray: [5, 5],
         });
@@ -121,23 +80,51 @@ export default {
 
     //添加指定多边形覆盖物到地图
     addPolygonToMap (polygon) { //polygon 传入多边形覆盖物对象或数组对象或区域序号
-      this.newMap.remove(this.polygonList) //先清除覆盖物，再添加覆盖物，以达到只显示一个覆盖物的效果
+      //先清除覆盖物，再添加覆盖物，以达到只显示一个覆盖物的效果
+      this.newMap.remove(this.polygonList)
       this.newMap.add(this.polygonList[polygon]);
-      this.newMap.setCenter(this.coordinateList[polygon][1]) //中心点随覆盖物区域的选择变动
+      //中心点随覆盖物区域的选择变动
+      this.newMap.setCenter(this.store.regionData[polygon].area[0])
+    },
+
+    //绘制覆盖物
+    drawPolygon () {
+      let mouseTool = new AMap.MouseTool(this.newMap)
+      mouseTool.polygon({
+        strokeColor: "#FF33FF",
+        strokeOpacity: 1,
+        strokeWeight: 6,
+        strokeOpacity: 0.2,
+        fillColor: '#1791fc',
+        fillOpacity: 0.4,
+        strokeStyle: "solid",
+      })
+      //清空数组
+      this.drawPolygonPath.splice(0)
+      //保存绘制的覆盖物坐标
+      mouseTool.on('draw', (e) => {
+        // event.obj 为绘制出来的覆盖物对象
+        this.$parent.addRegForm.area = JSON.stringify(e.obj._opts.path)  //把数组转换成字符串传给后端
+      })
+      return this.drawPolygonPath
     },
 
     //实例化点标记
     addMarker () {
-      marker = new AMap.Marker({
-        icon: "//a.amap.com/jsapi_demos/static/demo-center/icons/poi-marker-default.png",
-        position: [116.406315, 39.908775],
-        offset: new AMap.Pixel(-13, -30)
-      });
+      for (let i=0 ; i<this.store.siteData.length ; i++) {
+       this.markerList[i] = new AMap.Marker({
+          position: this.store.siteData[i].siteRange,
+          offset: new AMap.Pixel(-13, -30)
+        });
+      }
+      this.addMarkerToMap()
     },
 
     //添加站点标记点到地图
-    addMarkerToMap (num) { //传入的是区域序号
-
+    addMarkerToMap (num) {
+      for (let i=0 ; i<this.markerList.length ; i++) {
+        this.markerList[i].setMap(this.newMap)
+      }
     }
   },
 }

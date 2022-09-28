@@ -7,6 +7,9 @@ export const store = reactive({
   },
   search: '',
   regionData:[],
+  drawPolygonPath:[],
+  siteData:[],
+  vehicleData:[],
 })
 
   // ----------------------------------------函数---------------------------------------

@@ -15,7 +15,10 @@ export function addSiteServeData (obj) {
   return request({
     url:'/site/add',
     method:'post',
-    params:obj
+    data:obj,
+    headers:{
+      'Content-Type':'multipart/form-data'
+    },
   })
 }
 
@@ -32,6 +35,9 @@ export function updateSiteServeData (obj) {
   return request({
     url:'/site/update',
     method:'put',
-    params:obj,
+    data:obj,
+    headers:{
+      'Content-Type':'application/x-www-form-urlencoded'
+    },
   })
 }

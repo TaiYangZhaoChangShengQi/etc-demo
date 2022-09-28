@@ -11,28 +11,34 @@ export function getRegionServeData () {
 }
 
 //增
-export function addRegionServeData () {
+export function addRegionServeData (obj) {
   return request({
-    url:'/Region/add',
-    method:'post'
+    url:'/regional/add',
+    method:'post',
+    data:obj,
+    headers:{
+      'Content-Type':'multipart/form-data'
+    },
   })
 }
 
 //删
-export function deleteRegionServeData () {
+export function deleteRegionServeData (id) {
   return request({
-    url:'/Region/{num}',
-    method:'delete'
+    url:`/regional/${id}`,
+    method:'delete',
   })
 }
 
 //改
-export function updateRegionServeData (obj,id) { //id为区域id
+export function updateRegionServeData (obj) {
   return request({
-    url:'/Region/update',
+    url:'/regional/update',
     method:'put',
-    param:{siteId:id},
     data:obj,
+    headers:{
+      'Content-Type':'application/x-www-form-urlencoded'
+    },
   })
 }
 

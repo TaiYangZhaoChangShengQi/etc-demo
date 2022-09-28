@@ -13,14 +13,14 @@ export function request (config) {
 
     return config // 拦截成功后必须要返回config
   }, err => {
-
+    return err.request.data
   })
 
   // 响应拦截
   instance.interceptors.response.use( res => {
     return res.data
   },err => {
-    console.log()
+    return err.response.data
   })
 
   // 发送网络请求

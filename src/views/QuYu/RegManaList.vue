@@ -1,7 +1,6 @@
 <template>
   <div class="RegManaList">
-    <div class="lsitButton-1"/>
-    <div class="lsit-lsit">
+    <div class="table">
       <el-table :data="RegData" max-height="600" border style="width: 100%">
         <el-table-column align="center" prop="id" label="区域序号" min-width="100"/>
         <el-table-column align="center" prop="name" label="区域名称" min-width="100"/>
@@ -18,7 +17,7 @@
         <el-table-column align="center" label="操作" min-width="180">
           <template v-slot="scope">
             <el-button size="medium" type="warning" @click="editRegData(scope.row.id)">修改区域</el-button>
-            <el-button size="medium" type="danger" @click="deleteReg(scope.row.id)">删除区域</el-button>
+            <el-button size="medium" type="danger" @click="deleteRegData(scope.row.id)">删除区域</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -32,14 +31,11 @@
         <el-form-item label="区域名称">
           <el-input v-model="RegForm.name"/>
         </el-form-item>
-        <el-form-item label="区域GPS">
-          <el-input v-model="RegForm.area"/>
-        </el-form-item>
         <el-form-item label="备注">
           <el-input v-model="RegForm.remarks"/>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="">保存</el-button>
+          <el-button type="primary" @click="submitRegData">保存</el-button>
           <el-button @click="dialogChangeVisible = false">取消</el-button>
         </el-form-item>
       </el-form>
@@ -48,11 +44,13 @@
 </template>
 
 <script>
-import {getRegionServeData} from "@/network/region";
+import {getRegionServeData,deleteRegionServeData,updateRegionServeData} from "@/network/region";
 import {store} from "@/store/store";
+import qs from 'qs'
 
 export default {
   name: 'RegManaList',
+  inject:['reload'],
   data () {
     return {
       store,
@@ -70,10 +68,9 @@ export default {
     //渲染列表
     getRegData () {
       getRegionServeData().then(res => {
-        console.log('res',res)
         this.RegData = res.data
+        console.log('list',res)
         this.getToArray()
-        console.log(typeof res.data[1].area)
       }).catch(err => {
         console.log(err)
       })
@@ -95,24 +92,32 @@ export default {
       for (let i = 0; i < this.RegData.length; i++) {
         if (id === this.RegData[i].id) {
           let c = JSON.parse(JSON.stringify(this.RegData[i]))
-          // c.area = JSON.stringify(c.area)
           this.RegForm = c
         }
       }
     },
+    // 保存修改函数
+    submitRegData (num) {
+      this.RegForm.area = JSON.stringify(this.RegForm.area)
+      let c = qs.stringify(this.RegForm)
+      updateRegionServeData(c).then(res => {
+        console.log(res)
+        this.reload()
+      }).catch(err => {
+        console.log(err)
+      })
+      this.dialogRegVisible = false
+    },
 
-    //TODO
-    // // 保存修改函数
-    // RegBaoCun (num) {
-    //   this.store.addReg(num, this.RegForm)
-    //   this.dialogRegVisible = false
-    //   this.upRegData()
-    // },
-    // // 删除区域
-    // deleteReg (num) {
-    //   this.store.deleteRegData(num)
-    //   this.upRegData()
-    // }
+    // 删除区域
+    deleteRegData (id) {
+      deleteRegionServeData(id).then(res => {
+        console.log('delete',res)
+        this.reload()
+      }).catch(err => {
+        console.log('delete',err)
+      })
+    }
   },
 }
 </script>
