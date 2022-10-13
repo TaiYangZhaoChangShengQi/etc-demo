@@ -7,10 +7,8 @@
       </div>
     </div>
     <div class="vehicle-list">
-      <el-table
-              :data="vehicleData.filter(data => !search || data.LicensePlate.toLowerCase().includes(search.toLowerCase()))"
-              style="width: 100%">
-        <el-table-column align="center" label="序号" width="100" prop="virId"/>
+      <el-table :data="vehicleData" style="width: 100%">
+        <el-table-column align="center" label="序号" width="100" prop="virId" sortable/>
         <el-table-column align="center" label="车牌" width="200" prop="licensePlate" sortable/>
         <el-table-column align="center" label="OBU ID" min-width="200" prop="obuId"/>
         <el-table-column align="center" label="开始时间" min-width="200" prop="startTime" sortable/>
@@ -18,11 +16,16 @@
         <el-table-column align="center" label="识别次数" width="150" prop="frequency"/>
         <el-table-column align="center" label="识别站点" width="150" prop="siteName" sortable/>
       </el-table>
+      <!-- 分页 -->
+      <el-pagination
+              layout="total, sizes, prev, pager, next, jumper" style="text-align: center;"
+              @size-change="sizeChange" @current-change="currentChange" :total="totalCount">
+      </el-pagination>
     </div>
 
-    <!--添加车辆信息对话框             -->
-    <el-dialog title="提示" :visible.sync="dialogAddVehicleVisible" width="30%">
-      <el-form ref="form" :model="vehicleForm" label-width="80px">
+    <!-- 添加车辆信息对话框 -->
+    <el-dialog title="提示" :visible.sync="dialogAddVehicleVisible" width="40%">
+      <el-form ref="form" :model="vehicleForm" label-width="80px" >
         <el-form-item label="车牌号">
           <el-input v-model="vehicleForm.licensePlate" style="width: 300px"/>
         </el-form-item>
@@ -30,10 +33,22 @@
           <el-input v-model="vehicleForm.obuId" style="width: 300px"/>
         </el-form-item>
         <el-form-item label="开始时间">
-          <el-input v-model="vehicleForm.startTime" style="width: 300px"/>
+          <el-col :span="11">
+            <el-date-picker type="date" placeholder="选择日期" v-model="date1" style="width: 100%;"></el-date-picker>
+          </el-col>
+          <el-col class="line" :span="1">-</el-col>
+          <el-col :span="11">
+            <el-time-picker placeholder="选择时间" v-model="time1" style="width: 100%;"></el-time-picker>
+          </el-col>
         </el-form-item>
         <el-form-item label="结束时间">
-          <el-input v-model="vehicleForm.endTime" style="width: 300px"/>
+          <el-col :span="11">
+            <el-date-picker type="date" placeholder="选择日期" v-model="date3" style="width: 100%;"></el-date-picker>
+          </el-col>
+          <el-col class="line" :span="1">-</el-col>
+          <el-col :span="11">
+            <el-time-picker placeholder="选择时间" v-model="time3" style="width: 100%;"></el-time-picker>
+          </el-col>
         </el-form-item>
         <el-form-item label="识别次数">
           <el-input v-model="vehicleForm.frequency" style="width: 300px"/>
@@ -58,9 +73,8 @@
 </template>
 
 <script>
-import {getVehicleServeData,addVehicleServeData} from "@/network/vehicle";
 import {store} from "@/store/store";
-
+import {getAllVehicleServeData,getCurrentVehicleServeData,addVehicleServeData} from "@/network/vehicle";
 
 export default {
   name: 'CarInfoRecord',
@@ -68,40 +82,50 @@ export default {
   data () {
     return {
       store,
-      vehicleData:[], //渲染列表
-      vehicleForm: {   //添加信息的表单
+      search: '',
+      PageName: '车辆信息记录',
+      date1:'',
+      time1:'',
+      date3:'',
+      time3:'',
+      pageNum:'1',
+      pageSize:'10',
+      totalCount:0,
+      vehicleData:[], // 渲染列表
+      dialogAddVehicleVisible:false,
+      vehicleForm: {   // 添加信息的表单
         obuId:'',
         licensePlate:'',
         startTime:'',
         endTime: '',
-        frequency: '', //识别次数
+        frequency: '', // 识别次数
         siteId: '',
         devId: '',
       },
-      PageName: '车辆信息记录',
-      dialogAddVehicleVisible:false,
-      search: ''
     }
   },
 
-  created () {
+  mounted () {
     this.updateVehicleData()
   },
 
   methods: {
-    //渲染列表
+    // 渲染列表
     updateVehicleData () {
-      getVehicleServeData().then(res => {
+      getAllVehicleServeData().then(res => {
         console.log("res " , res.data)
-        this.vehicleData = res.data
-        this.store.vehicleData = res.data
+        this.vehicleData = res.data.rows
+        this.totalCount = res.data.totalCount
+        this.store.vehicleData = res.data.rows
       }).catch(err => {
         console.log(err)
       })
     },
 
-    //添加
+    // 添加
     addVehicle () {
+      this.vehicleForm.startTime = this.date1 + '\xa0' + this.time1
+      this.vehicleForm.endTime = this.date3 + '\xa0' + this.time3
       addVehicleServeData(this.vehicleForm).then(res => {
         console.log(res)
         this.reload()
@@ -110,6 +134,28 @@ export default {
       })
       this.dialogAddVehicleVisible = false
     },
+
+    // 选择某一页
+    currentChange (val) {
+      this.pageNum = val
+      getCurrentVehicleServeData(this.pageNum,this.pageSize).then(res => {
+        console.log("res " , res.data)
+        this.vehicleData = res.data.rows
+      }).catch(err => {
+        console.log(err)
+      })
+    },
+
+    // 选择展示的数据条数
+    sizeChange (val) {
+      this.pageSize = val
+      getCurrentVehicleServeData(this.pageNum,this.pageSize).then(res => {
+        console.log("res " , res.data)
+        this.vehicleData = res.data.rows
+      }).catch(err => {
+        console.log(err)
+      })
+    }
   }
 }
 </script>

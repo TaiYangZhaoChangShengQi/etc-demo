@@ -6,10 +6,13 @@ export const store = reactive({
     label: 'label'
   },
   search: '',
+  siteMap:null,
+  showChangeDraw:false,
   regionData:[],
   drawPolygonPath:[],
   siteData:[],
   vehicleData:[],
+  deviceTypeData:[],
 })
 
   // ----------------------------------------函数---------------------------------------

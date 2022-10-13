@@ -9,7 +9,7 @@
         </div>
         <div class="dev-item-table">
           <el-table
-            :data="deviceData.filter(data => !search || data.devName.toLowerCase().includes(search.toLowerCase()))"
+            :data="deviceData"
             style="width: 100%">
             <el-table-column align="center" fixed label="设备编号" min-width="100" prop="devNumber"/>
             <el-table-column align="center" label="设备名称" min-width="100" prop="devName"/>
@@ -28,31 +28,36 @@
                 <el-button size="medium" type="danger" @click="deleteDevDate(scope.row.devId)">删除</el-button>
               </template>
             </el-table-column>
-            </el-table>
+          </el-table>
+          <!-- 分页 -->
+          <el-pagination
+                  layout="total, sizes, prev, pager, next, jumper" style="text-align: center;"
+                  @size-change="sizeChange" @current-change="currentChange" :total="totalCount">
+          </el-pagination>
         </div>
       </div>
 
       <!--添加设备对话框 -->
-      <el-dialog title="添加设备" :visible.sync="dialogFormVisible">
-        <el-form ref="form" :model="form" label-width="100px">
+      <el-dialog title="添加设备" :visible.sync="dialogFormVisible" width="40%">
+        <el-form ref="form" :model="form" label-width="120px">
           <el-form-item label="站点ID">
             <el-select v-model="form.siteId" placeholder="请选择站点">
               <el-option v-for="item in store.siteData" :key="item.siteId" :label="item.siteName" :value="item.siteId"/>
             </el-select>
           </el-form-item>
-          <el-form-item label="设备编号">
+          <el-form-item label="设备编号" prop="devNumber">
             <el-input v-model="form.devNumber" style="width: 300px"/>
           </el-form-item>
-          <el-form-item label="设备名称">
+          <el-form-item label="设备名称" prop="devName">
             <el-input v-model="form.devName" style="width: 300px"/>
           </el-form-item>
           <el-form-item label="设备IP">
             <el-input v-model="form.ip" style="width: 300px"/>
           </el-form-item>
-          <el-form-item label="设备MAC">
+          <el-form-item label="设备MAC" prop="mac">
             <el-input v-model="form.mac" style="width: 300px"/>
           </el-form-item>
-          <el-form-item label="设备类型(Id)">
+          <el-form-item label="设备类型(Id)" prop="typeId">
             <el-input v-model="form.typeId" style="width: 300px"/>
           </el-form-item>
           <el-form-item label="备注">
@@ -68,13 +73,13 @@
       <el-dialog title="修改设备信息" :visible.sync="dialogChangeDevFormVisible">
         <el-form ref="form" :model="devForm" label-width="80px">
           <el-form-item label="设备编号">
-            <el-input v-model="devForm.devNumber" disabled/>
+            <el-input v-model="devForm.devNumber" />
           </el-form-item>
           <el-form-item label="设备名称">
             <el-input v-model="devForm.devName"/>
           </el-form-item>
           <el-form-item label="所属站点">
-            <el-input v-model="devForm.siteName" disabled/>
+            <el-input v-model="devForm.siteName" />
           </el-form-item>
           <el-form-item label="IP地址">
             <el-input v-model="devForm.ip"/>
@@ -83,7 +88,7 @@
             <el-input v-model="devForm.mac"/>
           </el-form-item>
           <el-form-item label="设备类型">
-            <el-input v-model="devForm.typeName" disabled/>
+            <el-input v-model="devForm.typeName" />
           </el-form-item>
           <el-form-item label="备注">
             <el-input type="textarea" v-model="devForm.remarks"/>
@@ -98,7 +103,7 @@
 </template>
 
 <script>
-import {getDeviceServeData,addDeviceServeData,deleteDeviceServeData,updateDeviceServeData} from "@/network/device";
+import {getCurrentDeviceServeData,addDeviceServeData,deleteDeviceServeData,updateDeviceServeData} from "@/network/device";
 import {store} from "@/store/store";
 
 export default {
@@ -107,16 +112,19 @@ export default {
   data () {
     return {
       store,
+      search: '',
+      pageNum:'1',
+      pageSize:'10',
+      totalCount:0,
+      devForm: {}, //修改信息的表单
+      deviceData: [], //渲染列表
+      PageName: '设备管理',
       dialogFormVisible: false, //添加设备 显示开关
       dialogChangeDevFormVisible: false,  //修改设备 显示开关
-      deviceData: [], //渲染列表
-      devForm: {}, //修改信息的表单
       defaultProps: {
         children: 'children',
         label: 'label'
       },
-      PageName: '设备管理',
-      search: '',
       form: {
         siteId:'',
         devNumber: '',
@@ -136,10 +144,32 @@ export default {
   methods: {
     //发送请求，渲染列表
     UpDevData () {
-      getDeviceServeData().then(res => {
+      getCurrentDeviceServeData(this.pageNum,this.pageSize).then(res => {
         console.log("res " , res.data)
-        this.deviceData = res.data
+        this.deviceData = res.data.rows
+        this.totalCount = res.data.totalCount
+      }).catch(err => {
+        console.log(err)
+      })
+    },
 
+    // 选择某一页
+    currentChange (val) {
+      this.pageNum = val
+      getCurrentDeviceServeData(this.pageNum,this.pageSize).then(res => {
+        console.log("res " , res.data)
+        this.deviceData = res.data.rows
+      }).catch(err => {
+        console.log(err)
+      })
+    },
+
+    // 选择展示的数据条数
+    sizeChange (val) {
+      this.pageSize = val
+      getCurrentDeviceServeData(this.pageNum,this.pageSize).then(res => {
+        console.log("res " , res.data)
+        this.deviceData = res.data.rows
       }).catch(err => {
         console.log(err)
       })

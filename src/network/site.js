@@ -10,6 +10,18 @@ export function getSiteServeData () {
   })
 }
 
+// 分页
+export function getCurrentSiteServeData (pageNum,pageSize) {
+  return request({
+    url:'/site/selectAll',
+    method:'get',
+    params:{
+      currentPage:pageNum,
+      pageSize:pageSize,
+    }
+  })
+}
+
 //增
 export function addSiteServeData (obj) {
   return request({

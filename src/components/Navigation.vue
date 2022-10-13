@@ -1,25 +1,34 @@
 <template>
   <div class="nav-content">
-    <div class="nav-route" :data-mytype=1 @click="clickNum($event)">
-      <i class="el-icon-location" :class="isActive==='1'?'active':'{}'"/>
-      <router-link to="/RegMana">区域管理</router-link>
-    </div>
-    <div class="nav-route" :data-mytype=2 @click="clickNum($event)">
-      <i class="el-icon-location" :class="isActive==='2'?'active':'{}'"/>
-      <router-link to="/SiteMana">站点管理</router-link>
-    </div>
-    <div class="nav-route" :data-mytype=3 @click="clickNum($event)">
-      <i class="el-icon-s-platform" :class="isActive==='3'?'active':'{}'"/>
-      <router-link to="/DeviceMana">设备管理</router-link>
-    </div>
-    <div class="nav-route" :data-mytype=4 @click="clickNum($event)">
-      <i class="el-icon-upload" :class="isActive==='4'?'active':'{}'"/>
-      <router-link to="/CarInfoRecord">车辆信息</router-link>
-    </div>
-    <div class="nav-route" :data-mytype=5 @click="clickNum($event)">
-      <i class="el-icon-upload" :class="isActive==='5'?'active':'{}'"/>
-      <router-link to="/DeviceBeatMana">设备心跳</router-link>
-    </div>
+    <el-menu :default-active="isActivePath" class="el-menu-vertical-demo" :router="true">
+      <el-menu-item index="/RegMana" class="pad">
+        <i class="el-icon-location"></i>
+        <span slot="title">区域管理</span>
+      </el-menu-item>
+      <el-menu-item index="/SiteMana" class="pad">
+        <i class="el-icon-location"></i>
+        <span slot="title">站点管理</span>
+      </el-menu-item>
+      <el-submenu index="/DeviceMana" class="pad">
+        <template slot="title">
+          <i class="el-icon-s-platform"></i>
+          <span>设备管理</span>
+        </template>
+        <el-menu-item-group>
+          <el-menu-item index="/DeviceMana">设备列表</el-menu-item>
+          <el-menu-item index="DeviceTypeMana">设备类型</el-menu-item>
+        </el-menu-item-group>
+      </el-submenu>
+      <el-menu-item index="/CarInfoRecord" class="pad">
+        <i class="el-icon-upload"></i>
+        <span slot="title">车辆信息</span>
+      </el-menu-item>
+      <el-menu-item index="/DeviceBeatMana" class="pad">
+        <i class="el-icon-upload"></i>
+        <span slot="title">设备心跳</span>
+      </el-menu-item>
+    </el-menu>
+
   </div>
 </template>
 
@@ -29,13 +38,20 @@ export default {
   data() {
     return {
       isActive:1,
+      isActivePath:'',
     }
   },
+
+  created() {
+    this.activePath()
+  },
+
   methods: {
-    clickNum(event) {
-      this.isActive = event.currentTarget.getAttribute("data-mytype")
+    activePath () {
+      console.log(this.$router.history.current.path)
+      this.isActivePath = this.$router.history.current.path
     }
-  }
+  },
 }
 </script>
 
@@ -53,9 +69,25 @@ export default {
     font-weight: 200;
     color: rgba(0,0,0,.85);
   }
-  .active {
-    color: #2E8CE7;
+  .el-submenu .el-menu-item {
+    min-width: 150px;
   }
+
+  .el-submenu__title,.el-menu-item {
+    font-size: 16px;
+    font-weight: 400;
+  }
+
+  .el-submenu__icon-arrow {
+    margin-top: -4px;
+    margin-right: -10px;
+  }
+
+  .pad {
+    margin-top: 20px;
+    font-family: "NSimSun", "Microsoft YaHei", "微软雅黑", Arial, sans-serif;
+  }
+
   a {
     text-decoration: none;
     color: rgba(0,0,0,.85);;

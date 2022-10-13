@@ -9,10 +9,10 @@
           <el-button type="primary" @click="dialogFormVisible = true">添加站点</el-button>
         </div>
       </div>
-      <!--站点列表      -->
+      <!-- 站点列表 -->
       <div class="site-item-table">
         <el-table
-          :data="this.store.siteData.filter(data => !search || data.siteName.toLowerCase().includes(search.toLowerCase()))"
+          :data="this.store.siteData"
           style="width: 100%">
           <el-table-column align="center" label="站点编号" min-width="100" prop="siteNumber"/>
           <el-table-column align="center" label="站点名称" min-width="100">
@@ -31,7 +31,7 @@
             </template>
           </el-table-column>
           <el-table-column align="center" label="备注" min-width="100" prop="remarks"/>
-          <!--搜索          -->
+          <!-- 搜索 -->
           <el-table-column fixed="right" width="200" align="right">
             <template slot="header" slot-scope="scope">
               <el-input v-model="search" size="medium" placeholder="输入站点名字搜索"/>
@@ -42,20 +42,25 @@
             </template>
           </el-table-column>
         </el-table>
+        <!-- 分页 -->
+        <el-pagination
+                layout="total, sizes, prev, pager, next, jumper" style="text-align: center;"
+                @size-change="sizeChange" @current-change="currentChange" :total="totalCount">
+        </el-pagination>
       </div>
     </div>
-    <!-- 添加站点对话框       -->
+    <!-- 添加站点对话框 -->
     <el-dialog title="添加站点" :visible.sync="dialogFormVisible">
-      <el-form ref="form" :model="form" label-width="80px">
-        <el-form-item label="区域id">
+      <el-form ref="form" :model="form" label-width="80px" :rules="rules">
+        <el-form-item label="区域id" prop="rgId">
           <el-select v-model="form.rgId" placeholder="请选择区域">
             <el-option v-for="item in store.regionData" :key="item.id" :label="item.name" :value="item.id"/>
           </el-select>
         </el-form-item>
-        <el-form-item label="站点编号">
+        <el-form-item label="站点编号" prop="siteNumber">
           <el-input v-model="form.siteNumber"/>
         </el-form-item>
-        <el-form-item label="站点名称">
+        <el-form-item label="站点名称" prop="siteName">
           <el-input v-model="form.siteName"/>
         </el-form-item>
         <el-form-item label="站点经度">
@@ -73,20 +78,20 @@
         </el-form-item>
       </el-form>
     </el-dialog>
-    <!-- 修改站点信息对话框       -->
+    <!-- 修改站点信息对话框 -->
     <el-dialog title="修改站点信息" :visible.sync="dialogChangeVisible">
       <el-form ref="form" :model="SiteForm" label-width="80px">
         <el-form-item label="站点编号">
-          <el-input v-model="SiteForm.siteNumber" disabled/>
+          <el-input v-model="SiteForm.siteNumber" />
         </el-form-item>
         <el-form-item label="站点名称">
           <el-input v-model="SiteForm.siteName"/>
         </el-form-item>
         <el-form-item label="站点GPS">
-          <el-input v-model="SiteForm.siteRange" disabled/>
+          <el-input v-model="SiteForm.siteRange" />
         </el-form-item>
         <el-form-item label="所属区域">
-          <el-input v-model="SiteForm.name" disabled/>
+          <el-input v-model="SiteForm.name" />
         </el-form-item>
         <el-form-item label="备注">
           <el-input type="textarea" v-model="SiteForm.remarks"/>
@@ -101,7 +106,7 @@
 </template>
 
 <script>
-import {getSiteServeData,updateSiteServeData,addSiteServeData,deleteSiteServeData} from "@/network/site";
+import {getCurrentSiteServeData,updateSiteServeData,addSiteServeData,deleteSiteServeData} from "@/network/site";
 import {store} from "@/store/store";
 import qs from "qs";
 
@@ -111,27 +116,41 @@ export default {
   data () {
     return {
       store,
+      search: '',
+      pageNum:'1',
+      pageSize:'10',
+      totalCount:0,
+      number1: null, // 存经度
+      number2: null,  // 存纬度
       PageName: '站点管理',
-      dialogFormVisible: false, // 控制添加站点弹窗
-      dialogChangeVisible: false, // 控制修改按钮弹窗
       SiteForm: {}, // 存放修改弹窗表单的数据
       SiteData: [], // 存放获取的站点数据，渲染到列表
-      search: '',
-      defaultProps: {  //用于树形图
-        children: 'children',
-        label: 'label'
+      dialogFormVisible: false, // 控制添加站点弹窗
+      dialogChangeVisible: false, // 控制修改按钮弹窗
+      rules:{
+        rgId:[
+          {required: true,message: '请选择活动区域',trigger: 'change'}
+        ],
+        siteNumber:[
+          {required: true,message: '请输入站点编号',trigger: 'blur'}
+        ],
+        siteName: [
+          {required: true,message: '请输入站点名称',trigger: 'blur'}
+        ],
       },
-      number1: null,
-      number2:null,
-      //用于添加站点的表单
+      // 用于添加站点的表单
       form: {
-        name:'',
-        siteName:'',
+        name: '',
+        siteName: '',
         siteNumber: '',
         siteRange: [],
         rgId: '',
         remarks: '',
-      }
+      },
+      defaultProps: {  // 用于树形图
+        children: 'children',
+        label: 'label'
+      },
     }
   },
   created () {
@@ -148,19 +167,20 @@ export default {
       console.log(this.SiteForm)
     },
 
-    //发送请求，渲染列表
+    // 发送请求，渲染列表
     getSiteDataList () {
-      getSiteServeData().then(res => {
+      getCurrentSiteServeData(this.pageNum,this.pageSize).then(res => {
         console.log("res " , res.data)
         this.store.siteData.splice(0)
-        this.store.siteData = res.data
+        this.store.siteData = res.data.rows
+        this.totalCount = res.data.totalCount
         this.getToArray()
       }).catch(err => {
         console.log(err)
       })
     },
 
-    //转换为数组
+    // 转换为数组
     getToArray () {
       for (let i = 0; i < this.store.siteData.length; i++) {
         let c = JSON.parse(this.store.siteData[i].siteRange)
@@ -168,11 +188,34 @@ export default {
       }
     },
 
-    //添加站点
+    // 选择某一页
+    currentChange (val) {
+      this.pageNum = val
+      getCurrentSiteServeData(this.pageNum,this.pageSize).then(res => {
+        console.log("res " , res.data)
+        this.store.siteData = res.data.rows
+      }).catch(err => {
+        console.log(err)
+      })
+    },
+
+    // 选择展示的数据条数
+    sizeChange (val) {
+      this.pageSize = val
+      getCurrentSiteServeData(this.pageNum,this.pageSize).then(res => {
+        console.log("res " , res.data)
+        this.store.siteData = res.data.rows
+      }).catch(err => {
+        console.log(err)
+      })
+    },
+
+    // 添加站点
     addSite () {
       console.log(this.number2)
       this.form.siteRange.push(this.number1,this.number2)
       this.form.siteRange = JSON.stringify(this.form.siteRange)
+
       addSiteServeData(this.form).then(res => {
         console.log(res)
         this.reload()
@@ -184,6 +227,7 @@ export default {
 
     // 修改站点数据
     editSiteData (siteNumber) { // siteNumber 站点编号
+      this.$router.push('/siteMap')
       this.dialogChangeVisible = true
       for (let i = 0; i < this.store.siteData.length; i++) {
         if (siteNumber === this.store.siteData[i].siteNumber) {
@@ -194,13 +238,13 @@ export default {
       this.testSite()
     },
 
-    //保存修改
+    // 保存修改
     submitSiteData () {
       this.SiteForm.siteRange = JSON.stringify(this.SiteForm.siteRange)
       let c = qs.stringify(this.SiteForm)
       updateSiteServeData(c).then(res => {
         console.log(res)
-        this.reload()  //放这里，网络请求是异步的，收到服务器反馈后再刷新
+        this.reload()  // 放这里，网络请求是异步的，收到服务器反馈后再刷新
       }).catch(err => {
         console.log(err)
       })

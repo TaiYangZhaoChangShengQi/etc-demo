@@ -1,13 +1,15 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 
-import RegionalMana from '@/components/RegionalMana'
-import SiteMana from '@/components/SiteMana'
+import RegionalMana from '@/views/QuYu/RegionalMana'
+import SiteMana from '@/views/ZhanDian/SiteMana'
 import Map from '@/views/QuYu/Map'
 import RegManaList from '@/views/QuYu/RegManaList'
-import DeviceMana from '@/components/DeviceMana'
-import CarInfoRecord from '@/components/VehicleInfoRecord'
-import DeviceBeatMana from "@/components/DeviceBeatMana";
+import DeviceMana from '@/views/SheBei/DeviceMana'
+import DeviceTypeMana from "@/views/SheBei/DeviceTypeMana";
+import CarInfoRecord from '@/views/VehicleInformation/VehicleInfoRecord'
+import DeviceBeatMana from "@/views/SheBeiXinTiao/DeviceBeatMana";
+import siteMap from "@/views/ZhanDian/siteMap";
 
 Vue.use(VueRouter)
 
@@ -39,8 +41,16 @@ const routes = [
     component: SiteMana,
   },
   {
+    path: '/siteMap',
+    component: siteMap
+  },
+  {
     path: '/DeviceMana',
     component: DeviceMana
+  },
+  {
+    path: '/DeviceTypeMana',
+    component: DeviceTypeMana
   },
   {
     path: '/CarInfoRecord',
