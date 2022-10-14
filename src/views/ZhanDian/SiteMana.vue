@@ -6,7 +6,7 @@
           {{PageName}}
         </div>
         <div class="site-item-line-button">
-          <el-button type="primary" @click="dialogFormVisible = true">添加站点</el-button>
+          <el-button type="primary" @click="clickAddSite">添加站点</el-button>
         </div>
       </div>
       <!-- 站点列表 -->
@@ -54,7 +54,7 @@
       <el-form ref="form" :model="form" label-width="80px" :rules="rules">
         <el-form-item label="区域id" prop="rgId">
           <el-select v-model="form.rgId" placeholder="请选择区域">
-            <el-option v-for="item in store.regionData" :key="item.id" :label="item.name" :value="item.id"/>
+            <el-option v-for="item in store.regionAllData" :key="item.id" :label="item.name" :value="item.id"/>
           </el-select>
         </el-form-item>
         <el-form-item label="站点编号" prop="siteNumber">
@@ -62,12 +62,6 @@
         </el-form-item>
         <el-form-item label="站点名称" prop="siteName">
           <el-input v-model="form.siteName"/>
-        </el-form-item>
-        <el-form-item label="站点经度">
-          <el-input v-model.number="number1" type="number"/>
-        </el-form-item>
-        <el-form-item label="站点纬度">
-          <el-input v-model.number="number2" type="number"/>
         </el-form-item>
         <el-form-item label="备注">
           <el-input type="textarea" v-model="form.remarks"/>
@@ -88,7 +82,7 @@
           <el-input v-model="SiteForm.siteName"/>
         </el-form-item>
         <el-form-item label="站点GPS">
-          <el-input v-model="SiteForm.siteRange" />
+          <el-input v-model="SiteForm.siteRange" disabled/>
         </el-form-item>
         <el-form-item label="所属区域">
           <el-input v-model="SiteForm.name" />
@@ -153,24 +147,37 @@ export default {
       },
     }
   },
+
+  mounted () {
+    if (this.$route.params.order === '返回站点列表') {
+      console.log('gps1',this.store.gps)
+      console.log(this.$route.params.order)
+      this.openAddForm()
+    }
+
+    if (this.$route.params.siteID >= 0) {
+      let c = Number(this.$route.params.siteID)
+      this.openChangeForm(c)
+
+    }
+
+  },
+
   created () {
     this.getSiteDataList()
   },
-  beforeUpdate () {
 
-  },
-  updated () {
-
-  },
   methods: {
     testSite () {
       console.log(this.SiteForm)
     },
 
-    // 发送请求，渲染列表
+    /**
+     * 获取站点列表
+     */
     getSiteDataList () {
       getCurrentSiteServeData(this.pageNum,this.pageSize).then(res => {
-        console.log("res " , res.data)
+        console.log("res1" , res.data.rows)
         this.store.siteData.splice(0)
         this.store.siteData = res.data.rows
         this.totalCount = res.data.totalCount
@@ -180,7 +187,9 @@ export default {
       })
     },
 
-    // 转换为数组
+    /**
+     * 将字符串类型的经纬度数据转换为数组类型
+     */
     getToArray () {
       for (let i = 0; i < this.store.siteData.length; i++) {
         let c = JSON.parse(this.store.siteData[i].siteRange)
@@ -188,63 +197,112 @@ export default {
       }
     },
 
-    // 选择某一页
+    /**
+     * 选择某一页
+     * @param val - 页码
+     */
     currentChange (val) {
       this.pageNum = val
       getCurrentSiteServeData(this.pageNum,this.pageSize).then(res => {
-        console.log("res " , res.data)
+        this.store.siteData.splice(0)
         this.store.siteData = res.data.rows
+        this.getToArray()
+        console.log('23',this.store.siteData)
       }).catch(err => {
         console.log(err)
       })
     },
 
-    // 选择展示的数据条数
+    /**
+     * 选择展示的数据条数
+     * @param val - 一页展示的数据条数
+     */
     sizeChange (val) {
       this.pageSize = val
       getCurrentSiteServeData(this.pageNum,this.pageSize).then(res => {
         console.log("res " , res.data)
+        this.store.siteData.splice(0)
         this.store.siteData = res.data.rows
+        this.getToArray()
       }).catch(err => {
         console.log(err)
       })
     },
 
-    // 添加站点
-    addSite () {
-      console.log(this.number2)
-      this.form.siteRange.push(this.number1,this.number2)
-      this.form.siteRange = JSON.stringify(this.form.siteRange)
+    /**
+     * 添加站点
+     * this.dialogFormVisible - 用于打开
+     */
+    clickAddSite () {
+      this.$router.push({
+        path:'/siteMap',
+        query:{
+          order:'添加站点',
+        }
+      })
+    },
 
+    /**
+     * 打开添加站点表单
+     */
+    openAddForm () {
+      this.dialogFormVisible = true
+    },
+
+    /**
+     * 将新建的站点发送到服务器保存
+     */
+    addSite () {
+      this.form.siteRange = this.store.gps
+      console.log('siteRange', this.form.siteRange)
+      this.form.siteRange = JSON.stringify(this.form.siteRange)
       addSiteServeData(this.form).then(res => {
         console.log(res)
-        this.reload()
+        window.location.reload()
       }).catch(err => {
         console.log(err)
       })
       this.dialogFormVisible = false
     },
 
-    // 修改站点数据
-    editSiteData (siteNumber) { // siteNumber 站点编号
-      this.$router.push('/siteMap')
-      this.dialogChangeVisible = true
-      for (let i = 0; i < this.store.siteData.length; i++) {
-        if (siteNumber === this.store.siteData[i].siteNumber) {
-          const c = JSON.parse(JSON.stringify(this.store.siteData[i]))
-          this.SiteForm = c
-        }
-      }
-      this.testSite()
+    /**
+     * 修改站点数据
+     * @param  siteId - 站点id
+     */
+    editSiteData (siteId) {
+      console.log(typeof siteId)
+      this.$router.push({
+        path:'/siteMap',
+          query:{
+            siteId:siteId,
+          }
+      })
+
     },
 
-    // 保存修改
+    /**
+     * 打开修改站点表单
+     */
+    openChangeForm (siteId) {
+      this.dialogChangeVisible = true
+      for (let i = 0; i < this.store.siteData.length; i++) {
+        if (siteId === this.store.siteData[i].siteId) {
+          const c = JSON.parse(JSON.stringify(this.store.siteData[i]))
+          this.SiteForm = c
+          console.log(this.SiteForm)
+        }
+      }
+    },
+
+    /**
+     *保存修改
+     */
     submitSiteData () {
       this.SiteForm.siteRange = JSON.stringify(this.SiteForm.siteRange)
       let c = qs.stringify(this.SiteForm)
       updateSiteServeData(c).then(res => {
         console.log(res)
-        this.reload()  // 放这里，网络请求是异步的，收到服务器反馈后再刷新
+        window.location.reload()  // 放这里，网络请求是异步的，收到服务器反馈后再刷新
       }).catch(err => {
         console.log(err)
       })

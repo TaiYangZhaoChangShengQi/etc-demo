@@ -47,7 +47,7 @@
       <!--修改设备信息对话框        -->
       <el-dialog title="修改设备信息" :visible.sync="dialogChangeDevFormVisible">
         <el-form ref="form" :model="devTypeForm" label-width="80px">
-          <el-form-item label="设备类型id">
+          <el-form-item label="类型id">
             <el-input v-model="devTypeForm.id" />
           </el-form-item>
           <el-form-item label="设备类型">
@@ -93,13 +93,13 @@ export default {
   },
 
   methods: {
-    // 列表
+    /**
+     * 获取设备类型列表
+     */
     getDeviceTypeData () {
       getCurrentDeviceTypeServeData(this.pageNum,this.pageSize).then(res => {
-        console.log('cs',res)
         this.store.deviceTypeData = res.data.rows
         this.totalCount = res.data.totalCount
-        this.getToArray()
       }).catch(err => {
         console.log(err)
       })

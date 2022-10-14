@@ -9,7 +9,7 @@
     </div>
     <button @click="testFunc">ccc</button>
     <!-- 修改覆盖物 -->
-    <div class="change-draw" v-show="store.showChangeDraw">
+    <div class="change-draw" v-show="showChangeDraw">
       <el-row>
         <el-button size="medium" type="primary" @click="cancelChangeDraw">取消</el-button>
         <el-button size="medium" type="primary" @click="polyEditor.open()">开始修改</el-button>
@@ -56,6 +56,7 @@ export default {
       polygon:{},
       polyEditor:{},
       dialogRegVisible: false,
+      showChangeDraw:false,
       polygonList:[{},{},{}],   // 覆盖物对象集
       markerList:[[],[],[]],  // 点标记对象的坐标集
       drawPolygonPath:[],   // 覆盖物坐标集
@@ -88,7 +89,10 @@ export default {
         // 实例化默认覆盖物
         this.createDefaultPolygon()
         // this.addMarker()
+
+        // 响应修改区域功能
         if (this.$route.query.id >= 0) {
+          this.showChangeDraw = true
           this.changeDraw(this.$route.query.id,this.$route.query.index)
         }
       }).catch(e => {
@@ -98,15 +102,16 @@ export default {
 
     // 测试用函数
     testFunc () {
-      console.log(this.RegForm)
+      let c = [1,2]
+      console.log(c)
     },
 
     // 创建默认多边形覆盖物
     createDefaultPolygon () {
       //创建多边形覆盖物
-      for (let i=0 ; i<this.store.regionData.length ; i++) {
+      for (let i=0 ; i<this.store.regionAllData.length ; i++) {
         this.polygonList[i] = new AMap.Polygon({
-          path: this.store.regionData[i].area,          // 设置线覆盖物路径
+          path: this.store.regionAllData[i].area,          // 设置线覆盖物路径
           fillColor: '#ccebc5',
           strokeOpacity: 1,
           fillOpacity: 0,
@@ -124,9 +129,9 @@ export default {
       this.newMap.remove(this.polygonList)
       this.newMap.add(this.polygonList[polygon]);
       // 中心点随覆盖物区域的选择变动
-      this.newMap.setCenter(this.store.regionData[polygon].area[0])
+      this.newMap.setCenter(this.store.regionAllData[polygon].area[0])
       // 地图层级随覆盖物区域的选择变动
-      let zoom1 = Number(this.store.regionData[polygon].zoom)
+      let zoom1 = Number(this.store.regionAllData[polygon].zoom)
       this.newMap.setZoom(zoom1)
     },
 
@@ -188,15 +193,6 @@ export default {
       this.drawPolygonPath.splice(0)
       this.searchForChange(myId)
       this.polyEditor = new AMap.PolygonEditor(this.newMap, this.polygon);
-      // 保存绘制的覆盖物坐标
-      // mouseTool.on('draw', (e) => {
-      //   // event.obj 为绘制出来的覆盖物对象
-      //   // 获取地图层级
-      //   // 获取到的zoom 类型是number
-      //   this.RegForm.zoom = this.newMap.getZoom();
-      //   // e.obj._opts.path 里面存放了经纬度数组
-      //
-      // })
       return this.drawPolygonPath
     },
     // 完成修改按钮
@@ -204,6 +200,7 @@ export default {
       this.polyEditor.close()
       this.RegForm.area = JSON.stringify(this.polygon._opts.path)  // 把数组转换成字符串传给后端
       console.log(this.RegForm)
+      this.showChangeDraw = false
       this.dialogRegVisible = true
     },
 
@@ -227,12 +224,13 @@ export default {
         console.log(err)
       })
       this.dialogRegVisible = false
-      this.store.showChangeDraw = false
+      this.showChangeDraw = false
       this.$router.push('/RegMana/RegManaList')
     },
 
     // 取消修改区域
     cancelChangeDraw () {
+      this.showChangeDraw = false
       this.reload()
       this.$router.push('/RegMana/RegManaList')
     },

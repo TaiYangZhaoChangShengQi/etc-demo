@@ -1,7 +1,7 @@
 <template>
   <div class="RegManaList">
     <div class="table">
-      <el-table :data="RegData" max-height="600" border style="width: 100%">
+      <el-table :data="this.store.regionData" max-height="600" border style="width: 100%">
         <el-table-column align="center" prop="id" label="区域序号" min-width="100"/>
         <el-table-column align="center" prop="name" label="区域名称" min-width="100"/>
         <el-table-column align="center" prop="" label="GPS" width="200" type="expand">
@@ -26,7 +26,7 @@
       <!-- 分页 -->
       <el-pagination
               layout="total, sizes, prev, pager, next, jumper" style="text-align: center;"
-              @size-change="sizeChange" @current-change="currentChange" :total="totalCount">
+              @size-change="sizeChange" @current-change="currentChange" :total="regionTotalCount">
       </el-pagination>
     </div>
 
@@ -49,40 +49,49 @@ export default {
       area:[],
       RegData: [],
       gpsList:[],
+      regionTotalCount:0,
       pageNum:'1',
       pageSize:'10',
-      totalCount:0,
       isTrue:true,
 
     }
   },
 
-  created() {
-    //获取区域列表
+  created () {
     this.getRegData()
   },
-
   methods: {
-    //渲染列表
+    /**
+     * 获取区域列表
+     * @param obj - 列表
+     */
     getRegData () {
       getCurrentRegionServeData(this.pageNum,this.pageSize).then(res => {
-        this.RegData = res.data.rows
         this.store.regionData = res.data.rows
-        this.totalCount = res.data.totalCount
-        console.log('list',res)
-        this.getToArray(this.RegData)
+        this.regionTotalCount = res.data.totalCount
+        console.log('store',res)
         this.getToArray(this.store.regionData)
       }).catch(err => {
         console.log(err)
       })
     },
 
+    /**
+     * 将字符串类型的经纬度数据转换为数组类型
+     */
+    getToArray (obj) {
+      for (let i = 0; i < obj.length; i++) {
+        let c = JSON.parse(obj[i].area)
+        obj[i].area = c
+      }
+    },
+
     // 选择某一页
     currentChange (val) {
       this.pageNum = val
       getCurrentRegionServeData(this.pageNum,this.pageSize).then(res => {
-        console.log("res " , res.data)
-        this.RegData = res.data.rows
+        this.store.regionData = res.data.rows
+        this.getToArray(this.store.regionData)
       }).catch(err => {
         console.log(err)
       })
@@ -92,8 +101,8 @@ export default {
     sizeChange (val) {
       this.pageSize = val
       getCurrentRegionServeData(this.pageNum,this.pageSize).then(res => {
-        console.log("res " , res.data)
-        this.RegData = res.data.rows
+        this.store.regionData = res.data.rows
+        this.getToArray(this.store.regionData)
       }).catch(err => {
         console.log(err)
       })
@@ -101,12 +110,9 @@ export default {
 
     //将坐标集字符串转换为数组
     getToArray (obj) {
-      this.gpsList.splice(0)
       for (let i = 0; i < obj.length; i++) {
         let c = JSON.parse(obj[i].area)
         obj[i].area = c
-        console.log(obj[i].area)
-        this.gpsList.push(c)
       }
     },
 
@@ -120,9 +126,8 @@ export default {
           index:index
         }
       })
-      this.store.showChangeDraw = true
+      this.showChangeDraw = true
     },
-
 
     // 删除区域
     deleteRegData (id) {

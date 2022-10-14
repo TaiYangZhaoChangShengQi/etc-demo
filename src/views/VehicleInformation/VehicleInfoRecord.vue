@@ -55,12 +55,12 @@
         </el-form-item>
         <el-form-item label="站点ID">
           <el-select v-model="vehicleForm.siteId" placeholder="请选择站点">
-            <el-option v-for="item in store.siteData" :key="item.siteId" :label="item.siteName" :value="item.siteId"/>
+            <el-option v-for="item in store.siteAllData" :key="item.siteId" :label="item.siteName" :value="item.siteId"/>
           </el-select>
         </el-form-item>
         <el-form-item label="识别设备">
           <el-select v-model="vehicleForm.devId" placeholder="请选择设备">
-            <el-option v-for="item in store.vehicleData" :key="item.devId" :label="item.devName" :value="item.devId"/>
+            <el-option v-for="item in store.deviceAllData" :key="item.devId" :label="item.devName" :value="item.devId"/>
           </el-select>
         </el-form-item>
         <el-form-item>

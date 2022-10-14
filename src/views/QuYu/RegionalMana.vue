@@ -3,7 +3,7 @@
     <div class="reg-body-total">
       <div class="reg-body-item-select">
         <el-select v-model="value1" placeholder="请选择区域" :disabled="select">
-          <el-option v-for="(item,index) in this.store.regionData" :key="item.id" :label="item.name" :value="item.id" @click.native="showRegional(index)"/>
+          <el-option v-for="(item,index) in this.store.regionAllData" :key="item.id" :label="item.name" :value="item.id" @click.native="showRegional(index)"/>
         </el-select>
       </div>
       <div class="Rebody-item-click">
@@ -130,11 +130,6 @@ export default {
     }
   },
 
-  created() {
-    this.getRegionData()
-
-  },
-
   mounted() {
     this.decideSelect()
   },
@@ -154,17 +149,6 @@ export default {
       if (this.$router.history.current.path === '/RegMana/RegManaList') {
         this.select = true
       }
-    },
-
-    // 列表
-    getRegionData () {
-      getCurrentRegionServeData(this.pageNum,this.pageSize).then(res => {
-        console.log('cs',res)
-        this.store.regionData = res.data.rows
-        this.getToArray()
-      }).catch(err => {
-        console.log(err)
-      })
     },
 
     // 转换为数组
@@ -202,6 +186,7 @@ export default {
     // 显示指定区域的范围以及站点位置
     showRegional (num) {
       let num1 = Number(num)
+      console.log(num1)
       this.$refs.child.addPolygonToMap(num1)
     },
 

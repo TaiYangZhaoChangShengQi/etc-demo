@@ -48,7 +48,6 @@ export default {
 
   methods: {
     activePath () {
-      console.log(this.$router.history.current.path)
       this.isActivePath = this.$router.history.current.path
     }
   },

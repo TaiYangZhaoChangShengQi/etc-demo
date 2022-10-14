@@ -15,6 +15,7 @@
 <script>
 import Home from './components/Home'
 import Navigation from '@/components/Navigation'
+import {store} from "@/store/store";
 
 export default {
   name: 'App',
@@ -22,16 +23,27 @@ export default {
     Home,
     Navigation
   },
+
   provide () {
     return {
       reload: this.reload
     }
   },
+
   data () {
     return {
+      store,
       isRouterAlive:true
     }
   },
+
+  created () {
+    this.store.getRegAllData()
+    this.store.getSiteAllDataList()
+    this.store.getDeviceTypeData()
+    this.store.UpDevData()
+  },
+
   methods:{
     //刷新页面
     reload () {

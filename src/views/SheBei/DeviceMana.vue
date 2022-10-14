@@ -42,7 +42,7 @@
         <el-form ref="form" :model="form" label-width="120px">
           <el-form-item label="站点ID">
             <el-select v-model="form.siteId" placeholder="请选择站点">
-              <el-option v-for="item in store.siteData" :key="item.siteId" :label="item.siteName" :value="item.siteId"/>
+              <el-option v-for="item in store.siteAllData" :key="item.siteId" :label="item.siteName" :value="item.siteId"/>
             </el-select>
           </el-form-item>
           <el-form-item label="设备编号" prop="devNumber">
@@ -58,7 +58,9 @@
             <el-input v-model="form.mac" style="width: 300px"/>
           </el-form-item>
           <el-form-item label="设备类型(Id)" prop="typeId">
-            <el-input v-model="form.typeId" style="width: 300px"/>
+            <el-select v-model="form.typeId" placeholder="请选择站点">
+              <el-option v-for="item in store.deviceTypeAllData" :key="item.id" :label="item.typeName" :value="item.id"/>
+            </el-select>
           </el-form-item>
           <el-form-item label="备注">
             <el-input type="textarea" v-model="form.remarks" style="width: 300px"/>
@@ -142,7 +144,9 @@ export default {
   },
 
   methods: {
-    //发送请求，渲染列表
+    /**
+     * 获取设备列表
+     */
     UpDevData () {
       getCurrentDeviceServeData(this.pageNum,this.pageSize).then(res => {
         console.log("res " , res.data)

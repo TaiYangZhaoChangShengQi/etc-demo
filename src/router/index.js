@@ -33,11 +33,12 @@ const routes = [
       {
         path: '/RegMana/RegManaList',
         component: RegManaList
-      }
+      },
     ]
   },
   {
     path: '/SiteMana',
+    name:'SiteMana',
     component: SiteMana,
   },
   {
