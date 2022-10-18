@@ -18,7 +18,7 @@
         <el-table-column align="center" prop="remarks" label="备注" min-width="180"/>
         <el-table-column align="center" label="操作" min-width="180">
           <template v-slot="scope">
-            <el-button size="medium" type="warning" @click="editRegData(scope.row.id,scope.row.area)">修改区域</el-button>
+            <el-button size="medium" type="warning" @click="editRegData(scope.row.id)">修改区域</el-button>
             <el-button size="medium" type="danger" @click="deleteRegData(scope.row.id)">删除区域</el-button>
           </template>
         </el-table-column>
@@ -63,13 +63,11 @@ export default {
   methods: {
     /**
      * 获取区域列表
-     * @param obj - 列表
      */
     getRegData () {
       getCurrentRegionServeData(this.pageNum,this.pageSize).then(res => {
         this.store.regionData = res.data.rows
         this.regionTotalCount = res.data.totalCount
-        console.log('store',res)
         this.getToArray(this.store.regionData)
       }).catch(err => {
         console.log(err)
@@ -78,6 +76,7 @@ export default {
 
     /**
      * 将字符串类型的经纬度数据转换为数组类型
+     * @param obj 数组
      */
     getToArray (obj) {
       for (let i = 0; i < obj.length; i++) {
@@ -86,7 +85,10 @@ export default {
       }
     },
 
-    // 选择某一页
+    /**
+     * 选择某一页
+     * @param val 页码
+     */
     currentChange (val) {
       this.pageNum = val
       getCurrentRegionServeData(this.pageNum,this.pageSize).then(res => {
@@ -97,7 +99,10 @@ export default {
       })
     },
 
-    // 选择展示的数据条数
+    /**
+     * 选择展示的数据条数
+     * @param val 一页展示的数据条数
+     */
     sizeChange (val) {
       this.pageSize = val
       getCurrentRegionServeData(this.pageNum,this.pageSize).then(res => {
@@ -108,28 +113,23 @@ export default {
       })
     },
 
-    //将坐标集字符串转换为数组
-    getToArray (obj) {
-      for (let i = 0; i < obj.length; i++) {
-        let c = JSON.parse(obj[i].area)
-        obj[i].area = c
-      }
-    },
-
-    // 修改区域信息函数
-    editRegData (id,index) { //区域id
-      console.log(index)
+    /**
+     * 修改区域信息函数
+     * @param id 区域id
+     */
+    editRegData (id) {
       this.$router.push({
         path:'/RegMana/Map',
         query:{
           id:id,
-          index:index
         }
       })
-      this.showChangeDraw = true
     },
 
-    // 删除区域
+    /**
+     * 删除区域
+     * @param id 区域id
+     */
     deleteRegData (id) {
       deleteRegionServeData(id).then(res => {
         console.log('delete',res)

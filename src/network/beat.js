@@ -11,7 +11,11 @@ export function getDeviceBeatServeData () {
   })
 }
 
-// 分页
+/**
+ * 分页
+ * @param pageNum 页码
+ * @param pageSize 一页展示的数据条数
+ */
 export function getCurrentDeviceBeatServeData (pageNum,pageSize) {
   return request({
     url:'/heartBeat/selectAll',

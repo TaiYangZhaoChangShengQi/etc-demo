@@ -51,6 +51,7 @@ export default {
       gps:[],
       str1:'返回站点列表',
       Marker:[],
+      markerList:[],
       newSiteRange:[],
       showDraw:false,
       changeDraw:false,
@@ -69,7 +70,7 @@ export default {
       AMapLoader.load({
         key:"e0182f82d3a2e2470ca386ea85595acc",             // 申请好的Web端开发者Key，首次调用 load 时必填
         version:"2.0",      // 指定要加载的 JSAPI 的版本，缺省时默认为 1.4.15
-        plugins:[''],       // 需要使用的的插件列表，如比例尺'AMap.Scale'等
+        plugins:["AMap.MarkerCluster","AMap.ElasticMarker"],       // 需要使用的的插件列表，如比例尺'AMap.Scale'等
       }).then((AMap)=>{
         this.store.siteMap = new AMap.Map("container",{  //设置地图容器id
           resizeEnable: true,
@@ -95,6 +96,8 @@ export default {
           this.changeDraw = true
           this.changedMarker(this.$route.query.siteId,this.arr)
         }
+
+        this.addAllMarker()
       }).catch(e=>{
         console.log(e);
       })
@@ -143,6 +146,7 @@ export default {
         position: arr,
         offset: new AMap.Pixel(-13, -30)
       })
+      this.newSiteRange = arr
       this.Marker.setMap(this.store.siteMap)
       this.store.siteMap.setCenter(arr)
     },
@@ -153,6 +157,7 @@ export default {
     dragSite () {
       this.Marker.setDraggable(true)
       this.Marker.on('dragend',e => {
+        this.newSiteRange.splice(0)
         this.newSiteRange.push(e.lnglat.lng,e.lnglat.lat)
       })
     },
@@ -193,6 +198,34 @@ export default {
       this.changeDraw = false
       this.$router.push('/SiteMana')
     },
+
+    /**
+     * 实例化全部点标记
+     */
+    addAllMarker () {
+      for (let i=0 ; i<this.store.siteAllData.length ; i++) {
+        this.markerList[i] = new AMap.Marker({
+          position: this.store.siteAllData[i].siteRange,
+          offset: new AMap.Pixel(-13, -30),
+          label:{
+            direction:'right',
+            offset:new AMap.Pixel(10, 0),  //设置文本标注偏移量
+            content:this.store.siteAllData[i].siteName,
+          },
+        });
+      }
+      this.addMarkerToMap()
+    },
+
+    /**
+     * 添加站点标记点到地图
+     * @param num
+     */
+    addMarkerToMap (num) {
+      for (let i=0 ; i<this.markerList.length ; i++) {
+        this.markerList[i].setMap(this.store.siteMap)
+      }
+    }
   },
 }
 </script>

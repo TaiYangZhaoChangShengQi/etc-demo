@@ -4,7 +4,15 @@
         <div class="dev-item-line">
           <div class="dev-item-line-path">{{PageName}}</div>
           <div class="dev-item-line-button">
-              <el-button type="primary" @click="dialogFormVisible = true">添加设备</el-button>
+            <div class="dev-item-line-button-input">
+              <el-input class="input-style" v-model="searchForm.devNumber" size="medium" placeholder="请输入设备编号"/>
+              <el-input class="input-style" v-model="searchForm.devName" size="medium" placeholder="请输入设备名称"/>
+              <el-input class="input-style" v-model="searchForm.siteName" size="medium" placeholder="请输入站点名称"/>
+              <el-input class="input-style" v-model="searchForm.typeName" size="medium" placeholder="请输入设备类型"/>
+              <el-button class="add-margin" type="primary" icon="el-icon-search" @click="getQuery">搜索</el-button>
+              <el-button style="width: 80px" type="primary" @click="UpDevData">重置</el-button>
+            </div>
+            <el-button type="primary" @click="dialogFormVisible = true">添加设备</el-button>
           </div>
         </div>
         <div class="dev-item-table">
@@ -21,7 +29,7 @@
             <!--搜索              -->
             <el-table-column fixed="right" width="200" align="right">
               <template slot="header" slot-scope="scope">
-                <el-input v-model="search" size="medium" placeholder="输入设备名称搜索"/>
+                <el-input v-model="search" size="medium" clearable @clear='UpDevData' @input="getSearch" placeholder="请输入关键字"/>
               </template>
               <template v-slot="scope">
                 <el-button size="medium" type="warning" @click="editDevData(scope.row.devNumber) ">修改</el-button>
@@ -38,7 +46,7 @@
       </div>
 
       <!--添加设备对话框 -->
-      <el-dialog title="添加设备" :visible.sync="dialogFormVisible" width="40%">
+        <el-dialog title="添加设备" :visible.sync="dialogFormVisible" width="40%">
         <el-form ref="form" :model="form" label-width="120px">
           <el-form-item label="站点ID">
             <el-select v-model="form.siteId" placeholder="请选择站点">
@@ -105,7 +113,12 @@
 </template>
 
 <script>
-import {getCurrentDeviceServeData,addDeviceServeData,deleteDeviceServeData,updateDeviceServeData} from "@/network/device";
+import {
+  getCurrentDeviceServeData,
+  addDeviceServeData,
+  deleteDeviceServeData,
+  updateDeviceServeData,
+  searchDeviceServeData} from "@/network/device";
 import {store} from "@/store/store";
 
 export default {
@@ -126,6 +139,14 @@ export default {
       defaultProps: {
         children: 'children',
         label: 'label'
+      },
+      searchForm:{
+        currentPage:1,
+        pageSize:100,
+        devNumber:'',
+        devName:'',
+        siteName:'',
+        typeName:'',
       },
       form: {
         siteId:'',
@@ -149,7 +170,6 @@ export default {
      */
     UpDevData () {
       getCurrentDeviceServeData(this.pageNum,this.pageSize).then(res => {
-        console.log("res " , res.data)
         this.deviceData = res.data.rows
         this.totalCount = res.data.totalCount
       }).catch(err => {
@@ -161,7 +181,6 @@ export default {
     currentChange (val) {
       this.pageNum = val
       getCurrentDeviceServeData(this.pageNum,this.pageSize).then(res => {
-        console.log("res " , res.data)
         this.deviceData = res.data.rows
       }).catch(err => {
         console.log(err)
@@ -172,7 +191,6 @@ export default {
     sizeChange (val) {
       this.pageSize = val
       getCurrentDeviceServeData(this.pageNum,this.pageSize).then(res => {
-        console.log("res " , res.data)
         this.deviceData = res.data.rows
       }).catch(err => {
         console.log(err)
@@ -182,7 +200,6 @@ export default {
     // 添加设备
     addDev () {
       addDeviceServeData(this.form).then(res => {
-        console.log(res)
         this.reload()
       }).catch(err => {
         console.log(err)
@@ -205,7 +222,6 @@ export default {
     // 保存修改的设备信息
     submitDevData () {
       updateDeviceServeData(this.devForm).then(res => {
-        console.log(res)
         this.reload()
       }).catch(err => {
         console.log(err)
@@ -216,12 +232,48 @@ export default {
     // 删除设备信息
     deleteDevDate (id) { //设备id
       deleteDeviceServeData(id).then(res => {
-        console.log('res',res)
         this.reload()
       }).catch(err => {
         console.log('err',err)
       })
-    }
+    },
+
+    /**
+     * 关键字搜索
+     */
+    getSearch () {
+      let keyWord = this.search.toLowerCase()
+      let arr = []
+      //输入内容为空时返回原数据
+      if (keyWord === '') {
+        this.UpDevData()
+      }
+      arr = this.deviceData.filter(item => {
+        if (item.devNumber.toLowerCase().indexOf(keyWord) !== -1) {
+          return item
+        }else if (item.devName.toLowerCase().indexOf(keyWord) !== -1) {
+          return item
+        }else if (item.siteName.toLowerCase().indexOf(keyWord) !== -1) {
+          return item
+        }else if (item.typeName.toLowerCase().indexOf(keyWord) !== -1) {
+          return item
+        }
+      })
+      this.totalCount = arr.length
+      this.deviceData = arr
+    },
+
+    /**
+     * 后端条件搜索
+     */
+    getQuery () {
+      searchDeviceServeData(this.searchForm).then(res => {
+        this.deviceData = res.data.rows
+        this.totalCount = res.data.totalCount
+      }).catch(err => {
+        console.log(err)
+      })
+    },
   },
 }
 </script>
@@ -249,6 +301,28 @@ export default {
     font-weight: 400;
     line-height: 40px;
     color: rgba(0,0,0,.85);
+  }
+
+  .dev-item-line-button {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .dev-item-line-button-input {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 850px;
+    margin-right: 50px;
+  }
+
+  .input-style {
+    padding-top: 3px;
+    width: 150px;
+  }
+
+  .add-margin {
+    margin-left: 10px;
   }
 
   .dev-item-table {

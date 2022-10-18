@@ -1,8 +1,12 @@
 import {request} from "@/network/request";
 
-//存放车辆信息页面所有的网络请求
+/**
+ * 存放车辆信息页面所有的网络请求
+ */
 
-//列表
+/**
+ * 列表
+ */
 export function getAllVehicleServeData () {
   return request({
     url:'/vehicle/selectAll',
@@ -14,7 +18,11 @@ export function getAllVehicleServeData () {
   })
 }
 
-//分页
+/**
+ * 分页
+ * @param pageNum 页码
+ * @param pageSize 一页展示的数据条数
+ */
 export function getCurrentVehicleServeData (pageNum,pageSize) {
   return request({
     url:'/vehicle/selectAll',
@@ -26,7 +34,9 @@ export function getCurrentVehicleServeData (pageNum,pageSize) {
   })
 }
 
-//增
+/**
+ * 增
+ */
 export function addVehicleServeData (obj) {
   return request({
     url:'/vehicle/add',
@@ -37,4 +47,14 @@ export function addVehicleServeData (obj) {
 
 
 
-//查
+/**
+ * 查
+ */
+export function searchVehicleServeData (obj) {
+  console.log('obj',obj)
+  return request({
+    url:'/vehicle/selectCondition',
+    method:'get',
+    params:obj
+  })
+}

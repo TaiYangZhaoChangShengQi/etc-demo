@@ -1,13 +1,14 @@
 <template>
   <div>
     <div id="map"></div>
+    <button @click="testFunc">ccc</button>
     <div class="item">
       <h4>左击获取经纬度：</h4>
       <div class="input-item">
         <input type="text" readonly="true" v-model="gps">
       </div>
     </div>
-    <button @click="testFunc">ccc</button>
+    
     <!-- 修改覆盖物 -->
     <div class="change-draw" v-show="showChangeDraw">
       <el-row>
@@ -52,6 +53,7 @@ export default {
       store,
       gps: '',
       newMap:'',
+      nameList:[],
       RegForm: {},
       polygon:{},
       polyEditor:{},
@@ -68,12 +70,15 @@ export default {
   },
 
   methods: {
+    /**
+     * 初始化地图
+     */
     initMap () {
       AMapLoader.load({
         key: 'e0182f82d3a2e2470ca386ea85595acc', // 申请好的Web端开发者Key，首次调用 load 时必填
         version: '2.0', // 指定要加载的 JSAPI 的版本，缺省时默认为 1.4.15
         plugins: ['AMap.AutoComplete', 'AMap.ElasticMarker', 'AMap.TileLayer', 'AMap.PlaceSearch', 'AMap.Scale',"AMap.MarkerCluster",
-          'AMap.OverView', 'AMap.ToolBar','AMap.MouseTool', 'AMap.MapType', 'AMap.PolygonEditor', 'AMap.CircleEditor', 'AMap.ControlBar'] // 需要使用的的插件列表，如比例尺'AMap.Scale'等
+          'AMap.OverView', 'AMap.ToolBar','AMap.MouseTool', 'AMap.MapType','AMap.Driving','AMap.DragRoute', 'AMap.PolygonEditor', 'AMap.CircleEditor', 'AMap.ControlBar'] // 需要使用的的插件列表，如比例尺'AMap.Scale'等
       }).then((AMap) => {
         this.newMap = new AMap.Map('map', {
           resizeEnable: true,
@@ -88,25 +93,31 @@ export default {
         })
         // 实例化默认覆盖物
         this.createDefaultPolygon()
-        // this.addMarker()
+        this.addMarker()
 
         // 响应修改区域功能
         if (this.$route.query.id >= 0) {
+          console.log('45615')
           this.showChangeDraw = true
-          this.changeDraw(this.$route.query.id,this.$route.query.index)
+          console.log('45615')
+          this.changeDraw(this.$route.query.id)
         }
+        this.addAllPolygonToMap()
       }).catch(e => {
         console.log(e)
       })
     },
 
-    // 测试用函数
+    /**
+     * 测试用函数
+     */
     testFunc () {
-      let c = [1,2]
-      console.log(c)
+      this.removeTheSame()
     },
 
-    // 创建默认多边形覆盖物
+    /**
+     * 创建默认多边形覆盖物
+     */
     createDefaultPolygon () {
       //创建多边形覆盖物
       for (let i=0 ; i<this.store.regionAllData.length ; i++) {
@@ -123,8 +134,12 @@ export default {
       }
     },
 
-    // 添加指定多边形覆盖物到地图
-    addPolygonToMap (polygon,zoom) { // polygon 传入多边形覆盖物对象或数组对象或区域序号 ,zoom 为地图层级，是个number
+    /**
+     * 添加指定多边形覆盖物到地图
+     * @param polygon - 传入多边形覆盖物对象或数组对象或区域序号
+     * @param zoom - 为地图层级，number类型
+     */
+    addPolygonToMap (polygon,zoom) {
       // 先清除覆盖物，再添加覆盖物，以达到只显示一个覆盖物的效果
       this.newMap.remove(this.polygonList)
       this.newMap.add(this.polygonList[polygon]);
@@ -135,7 +150,18 @@ export default {
       this.newMap.setZoom(zoom1)
     },
 
-    // 绘制覆盖物
+    /**
+     * 显示全部覆盖物
+     */
+    addAllPolygonToMap () {
+      // 先清除覆盖物，再添加覆盖物，以达到只显示一个覆盖物的效果
+      this.newMap.remove(this.polygonList)
+      this.newMap.add(this.polygonList);
+    },
+
+    /**
+     * 绘制覆盖物
+     */
     drawPolygon () {
       let mouseTool = new AMap.MouseTool(this.newMap)
       mouseTool.polygon({
@@ -154,14 +180,19 @@ export default {
         // event.obj 为绘制出来的覆盖物对象
         // 获取地图层级
         // 获取到的zoom 类型是number
-        this.$parent.addRegForm.zoom = this.newMap.getZoom();
+        let regZoom = this.newMap.getZoom();
+        this.$parent.addRegForm.zoom = Math.floor(regZoom)
         // e.obj._opts.path 里面存放了经纬度数组
-        this.$parent.addRegForm.area = JSON.stringify(e.obj._opts.path)  // 把数组转换成字符串传给后端
+        let d  = JSON.stringify(e.obj._opts.path)  // 把数组转换成字符串传给后端
+        let e1 =  '{"area":"' + d + '"}'
+        this.$parent.addRegForm.area = e1 // 把数组转换成字符串传给后端
       })
       return this.drawPolygonPath
     },
 
-    // 修改覆盖物
+    /**
+     * 修改覆盖物
+     */
     changeDraw (id,index) {
       let arr = []
       let ct = 1
@@ -195,16 +226,27 @@ export default {
       this.polyEditor = new AMap.PolygonEditor(this.newMap, this.polygon);
       return this.drawPolygonPath
     },
-    // 完成修改按钮
+
+    /**
+     * 完成修改按钮
+     * mathZoom 部分是用于重新设置地图层级，因为getZoom获取的层级数字有小数，所以向下取整
+     */
     enterChange () {
       this.polyEditor.close()
-      this.RegForm.area = JSON.stringify(this.polygon._opts.path)  // 把数组转换成字符串传给后端
+      let c = JSON.stringify(this.polygon._opts.path)  // 把数组转换成字符串传给后端
+      let e =  '{"area":"' + c + '"}'
+      this.RegForm.area = e
+      let mathZoom = this.newMap.getZoom();
+      this.RegForm.zoom = Math.floor(mathZoom)
       console.log(this.RegForm)
+      console.log(this.RegForm.zoom)
       this.showChangeDraw = false
       this.dialogRegVisible = true
     },
 
-    // 寻找目标放到修改框
+    /**
+     * 寻找目标放到修改框
+     */
     searchForChange (id) {
       for (let i = 0; i < this.store.regionData.length; i++) {
         if (id === this.store.regionData[i].id) {
@@ -214,11 +256,13 @@ export default {
       }
     },
 
-    // 保存修改函数
+    /**
+     * 保存修改函数
+     */
     submitRegData (num) {
       let c = qs.stringify(this.RegForm)
       updateRegionServeData(c).then(res => {
-        console.log(res)
+        console.log('zl1',res)
         this.reload()
       }).catch(err => {
         console.log(err)
@@ -228,31 +272,84 @@ export default {
       this.$router.push('/RegMana/RegManaList')
     },
 
-    // 取消修改区域
+    /**
+     * 取消修改区域
+     */
     cancelChangeDraw () {
       this.showChangeDraw = false
       this.reload()
       this.$router.push('/RegMana/RegManaList')
     },
 
-    // 实例化点标记
+    /**
+     * 实例化全部点标记
+     */
     addMarker () {
-      for (let i=0 ; i<this.store.siteData.length ; i++) {
+      for (let i=0 ; i<this.store.siteAllData.length ; i++) {
        this.markerList[i] = new AMap.Marker({
-          position: this.store.siteData[i].siteRange,
+          position: this.store.siteAllData[i].siteRange,
           offset: new AMap.Pixel(-13, -30),
-         // content:this.store.siteData,
+          label:{
+            direction:'right',
+            offset:new AMap.Pixel(10, 0),  //设置文本标注偏移量
+            content:this.store.siteAllData[i].siteName,
+          },
         });
       }
-      this.addMarkerToMap()
+      this.addAllMarkerToMap()
     },
 
-    // 添加站点标记点到地图
-    addMarkerToMap (num) {
+    /**
+     * 添加全部站点标记点到地图
+     * @param num
+     */
+    addAllMarkerToMap (num) {
       for (let i=0 ; i<this.markerList.length ; i++) {
         this.markerList[i].setMap(this.newMap)
       }
-    }
+    },
+
+    /**
+     * 添加全部站点标记点到地图
+     * @param num
+     */
+    addMarkerToMap (num) {
+      // 先清除覆盖物，再添加覆盖物，以达到只显示一个覆盖物的效果
+      console.log(num)
+      this.newMap.remove(this.markerList)
+      this.newMap.add(this.markerList[num])
+      // 中心点随覆盖物区域的选择变动
+      console.log(this.store.siteAllData[num].zoom)
+      this.newMap.setCenter(this.store.siteAllData[num].siteRange)
+    },
+
+    /**
+     * 把车牌号放到新数组
+     */
+    removeTheSame () {
+      let list = []
+      this.store.vehicleAllData.map( (item,index) => {
+        list.push(item.licensePlate)
+      })
+      for(let i = 0; i < list.length ; i++){
+        if(this.nameList.lastIndexOf(list[i])===-1){
+          this.nameList.push(list[i])
+        }
+      }
+      console.log( this.nameList)
+    },
+
+    /**
+     * 车辆轨迹
+     */
+    vehicleTrack (num) {
+      let path = []
+      let c = this.store.vehicleAllData[num].trackRecord
+      path= JSON.parse(c)
+      console.log(path)
+      let route = new AMap.DragRoute(this.newMap,path,AMap.DrivingPolicy.LEAST_FEE)
+      route.search()
+    },
   },
 }
 </script>
@@ -292,5 +389,9 @@ export default {
     height: 45px;
     width: 300px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, .12), 0 0 6px rgba(0, 0, 0, .04);
+  }
+
+  .amap-marker-label {
+    border-style: none;
   }
 </style>

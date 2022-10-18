@@ -47,6 +47,9 @@ export default {
   },
 
   methods: {
+    /**
+     * 获取活跃路径
+     */
     activePath () {
       this.isActivePath = this.$router.history.current.path
     }

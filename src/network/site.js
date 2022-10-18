@@ -1,8 +1,12 @@
 import {request} from "@/network/request";
 
-//存放站点页面所有的网络请求
+/**
+ * 存放站点页面所有的网络请求
+ */
 
-//渲染列表
+/**
+ * 列表
+ */
 export function getSiteServeData () {
   return request({
     url:'/site/selectAll',
@@ -10,7 +14,11 @@ export function getSiteServeData () {
   })
 }
 
-// 分页
+/**
+ * 分页
+ * @param pageNum 页码
+ * @param pageSize 一页展示的数据条数
+ */
 export function getCurrentSiteServeData (pageNum,pageSize) {
   return request({
     url:'/site/selectAll',
@@ -22,7 +30,9 @@ export function getCurrentSiteServeData (pageNum,pageSize) {
   })
 }
 
-//增
+/**
+ * 增
+ */
 export function addSiteServeData (obj) {
   return request({
     url:'/site/add',
@@ -34,7 +44,9 @@ export function addSiteServeData (obj) {
   })
 }
 
-//删
+/**
+ * 删
+ */
 export function deleteSiteServeData (id) {
   return request({
     url:`/site/${id}`,
@@ -42,7 +54,9 @@ export function deleteSiteServeData (id) {
   })
 }
 
-//改
+/**
+ * 改
+ */
 export function updateSiteServeData (obj) {
   return request({
     url:'/site/update',
@@ -51,5 +65,16 @@ export function updateSiteServeData (obj) {
     headers:{
       'Content-Type':'application/x-www-form-urlencoded'
     },
+  })
+}
+
+/**
+ * 查
+ */
+export function searchSiteServeData (obj) {
+  return request({
+    url:'/site/selectCondition',
+    method:'get',
+    params:obj
   })
 }

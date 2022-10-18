@@ -2,8 +2,14 @@
   <div class="reg-body">
     <div class="reg-body-total">
       <div class="reg-body-item-select">
-        <el-select v-model="value1" placeholder="请选择区域" :disabled="select">
+        <el-select style="margin-right: 10px" v-model="value1" placeholder="请选择区域" :disabled="select">
           <el-option v-for="(item,index) in this.store.regionAllData" :key="item.id" :label="item.name" :value="item.id" @click.native="showRegional(index)"/>
+        </el-select>
+        <el-select style="margin-right: 10px" v-model="value2" placeholder="请选择站点" :disabled="select">
+          <el-option v-for="(item,index) in this.store.siteAllData" :key="item.siteId" :label="item.siteName" :value="item.siteId" @click.native="showMarker(index)"/>
+        </el-select>
+        <el-select v-model="value3" placeholder="请选择车辆" :disabled="select">
+          <el-option v-for="(item,index) in this.store.vehicleAllData" :key="item.virId" :label="item.licensePlate" :value="item.virId" @click.native="showVehicle(index)"/>
         </el-select>
       </div>
       <div class="Rebody-item-click">
@@ -24,6 +30,9 @@
     </div>
     <!-- 绘制覆盖物 -->
     <div class="draw" v-show="showDraw">
+      <div class="word">
+        点击左键开始绘制，按右键结束
+      </div>
       <el-row>
         <el-button size="medium" type="primary" @click="cancelDraw">取消</el-button>
         <el-button size="medium" type="primary" @click="submitDrawPath">完成绘制</el-button>
@@ -77,6 +86,8 @@ export default {
       store,
       select:false, // 可用或禁用开关
       value1: '',
+      value2: '',
+      value3: '',
       pageNum: '1',
       pageSize:'10',
       showDraw:false,
@@ -132,26 +143,41 @@ export default {
 
   mounted() {
     this.decideSelect()
+    this.store.getRegAllData()
+    this.store.getSiteAllDataList()
+    this.store.getAllVehicleData()
   },
 
   methods: {
+    /**
+     * 跳转到地图页面
+     */
     clickMap () {
       this.$router.push('/RegMana/Map')
+      window.location.reload()
       this.select = false
     },
+
+    /**
+     * 跳转到区域列表页面
+     */
     clickRegManaList () {
       this.$router.push('/RegMana/RegManaList')
       this.select = true
     },
 
-    // 防止区域页面刷新后使区域选择框可用
+    /**
+     * 防止区域页面刷新后使区域选择框可用
+     */
     decideSelect () {
       if (this.$router.history.current.path === '/RegMana/RegManaList') {
         this.select = true
       }
     },
 
-    // 转换为数组
+    /**
+     * 转换为数组
+     */
     getToArray () {
       for (let i = 0; i < this.store.regionData.length; i++) {
         let c = JSON.parse(this.store.regionData[i].area)
@@ -159,19 +185,25 @@ export default {
       }
     },
 
-    // 添加区域
+    /**
+     * 添加区域
+     */
     addRegion () {
       this.showDraw = true
       this.addRegForm.area = this.$refs.child.drawPolygon()
     },
 
-    // 保存绘制的覆盖物的坐标数据
+    /**
+     * 保存绘制的覆盖物的坐标数据
+     */
     submitDrawPath () {
       this.showDraw = false
       this.dialogAddRegVisible = true // 打开填写窗口
     },
 
-    // 添加到服务器
+    /**
+     * 添加到服务器
+     */
     addRegionToServe () {
       addRegionServeData(this.addRegForm).then(res => {
         console.log(res)
@@ -181,16 +213,39 @@ export default {
         alert('错误：'+ err.code)
       })
       this.dialogFormVisible = false
+      window.location.reload()
     },
 
-    // 显示指定区域的范围以及站点位置
+    /**
+     * 显示指定区域的范围以及站点位置
+     */
     showRegional (num) {
       let num1 = Number(num)
       console.log(num1)
       this.$refs.child.addPolygonToMap(num1)
     },
 
-    // 取消画图
+    /**
+     * 显示指定区域的范围以及站点位置
+     */
+    showMarker (num) {
+      let num1 = Number(num)
+      console.log(num1)
+      this.$refs.child.addMarkerToMap(num1)
+    },
+
+    /**
+     * 显示指定区域的范围以及站点位置
+     */
+    showVehicle (num) {
+      let num1 = Number(num)
+      console.log(num1)
+      this.$refs.child.vehicleTrack(num1)
+    },
+
+    /**
+     * 取消画图
+     */
     cancelDraw () {
       this.reload()
     },
@@ -206,7 +261,9 @@ export default {
   }
 
   .reg-body-item-select {
-    width: 150px;
+    display: flex;
+    justify-content: space-around;
+    width: 430px;
   }
 
   .Rebody-item-button {
@@ -227,11 +284,19 @@ export default {
     position: absolute;
     top: 150px;
     left: 200px;
-    padding-top: 10px;
-    display: flex;
-    justify-content: center;
-    height: 45px;
-    width: 200px;
+    text-align: center;
+    padding-top: 5px;
+    border-radius: 10px;
+    background-color: rgba(255,255,255, .7);
     box-shadow: 0 2px 4px rgba(0, 0, 0, .12), 0 0 6px rgba(0, 0, 0, .04);
+  }
+
+  .draw .word {
+    font-family: "FangSong", "Microsoft YaHei", "微软雅黑", Arial, sans-serif;
+    font-weight: 600;
+    color: #6495ED;
+    margin-bottom: 5px;
+    width: 290px;
+
   }
 </style>

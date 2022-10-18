@@ -6,6 +6,13 @@
           {{PageName}}
         </div>
         <div class="site-item-line-button">
+          <div class="site-item-line-button-input">
+            <el-input class="input-style" v-model="searchForm.name" size="medium" placeholder="请输入区域名称"/>
+            <el-input class="input-style" v-model="searchForm.siteName" size="medium" placeholder="请输入站点名称"/>
+            <el-input class="input-style" v-model="searchForm.siteNumber" size="medium" placeholder="请输入站点编号"/>
+            <el-button class="add-margin" type="primary" icon="el-icon-search" @click="getQuery">搜索</el-button>
+            <el-button style="width: 80px" type="primary" @click="getSiteDataList">重置</el-button>
+          </div>
           <el-button type="primary" @click="clickAddSite">添加站点</el-button>
         </div>
       </div>
@@ -34,7 +41,7 @@
           <!-- 搜索 -->
           <el-table-column fixed="right" width="200" align="right">
             <template slot="header" slot-scope="scope">
-              <el-input v-model="search" size="medium" placeholder="输入站点名字搜索"/>
+              <el-input v-model="search" size="medium" clearable @clear='getSiteDataList' @input="getSearch" placeholder="请输入关键字"/>
             </template>
             <template v-slot="scope">
               <el-button size="medium" type="warning" @click="editSiteData(scope.row.siteNumber)">修改</el-button>&nbsp;&nbsp;&nbsp;
@@ -100,7 +107,12 @@
 </template>
 
 <script>
-import {getCurrentSiteServeData,updateSiteServeData,addSiteServeData,deleteSiteServeData} from "@/network/site";
+import {
+  getCurrentSiteServeData,
+  updateSiteServeData,
+  addSiteServeData,
+  deleteSiteServeData,
+  searchSiteServeData} from "@/network/site";
 import {store} from "@/store/store";
 import qs from "qs";
 
@@ -121,6 +133,13 @@ export default {
       SiteData: [], // 存放获取的站点数据，渲染到列表
       dialogFormVisible: false, // 控制添加站点弹窗
       dialogChangeVisible: false, // 控制修改按钮弹窗
+      searchForm:{
+        currentPage:1,
+        pageSize:100,
+        name:'',
+        siteName:'',
+        siteNumber:'',
+      },
       rules:{
         rgId:[
           {required: true,message: '请选择活动区域',trigger: 'change'}
@@ -317,7 +336,43 @@ export default {
       }).catch(err => {
         console.log('err',err)
       })
-    }
+    },
+
+    /**
+     * 关键字搜索
+     */
+    getSearch () {
+      let keyWord = this.search.toLowerCase()
+      let arr = []
+      //输入内容为空时返回原数据
+      if (keyWord === '') {
+        this.getSiteDataList()
+      }
+      arr = this.store.siteData.filter(item => {
+        if (item.siteNumber.toLowerCase().indexOf(keyWord) !== -1) {
+          return item
+        }else if (item.siteName.toLowerCase().indexOf(keyWord) !== -1) {
+          return item
+        }else if (item.name.toLowerCase().indexOf(keyWord) !== -1) {
+          return item
+        }
+      })
+      this.totalCount = arr.length
+      this.store.siteData = arr
+    },
+
+    /**
+     * 后端条件搜索
+     */
+    getQuery () {
+      searchSiteServeData(this.searchForm).then(res => {
+        this.store.siteData = res.data.rows
+        this.totalCount = res.data.totalCount
+        this.getToArray()
+      }).catch(err => {
+        console.log(err)
+      })
+    },
 
   },
 
@@ -348,6 +403,28 @@ export default {
     font-weight: 400;
     line-height: 40px;
     color: rgba(0,0,0,.85);
+  }
+
+  .site-item-line-button {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .site-item-line-button-input {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 700px;
+    margin-right: 50px;
+  }
+
+  .input-style {
+    padding-top: 3px;
+    width: 150px;
+  }
+
+  .add-margin {
+    margin-left: 10px;
   }
 
   .site-item-table {

@@ -1,8 +1,12 @@
 import {request} from "@/network/request";
 
-// 存放区域页面所有的网络请求
+/**
+ * 存放区域页面所有的网络请求
+ */
 
-// 渲染列表
+/**
+ * 列表
+ */
 export function getRegionServeData () {
   return request({
     url:'/regional/selectAll',
@@ -10,7 +14,11 @@ export function getRegionServeData () {
   })
 }
 
-// 分页
+/**
+ * 分页
+ * @param pageNum 页码
+ * @param pageSize 一页展示的数据条数
+ */
 export function getCurrentRegionServeData (pageNum,pageSize) {
   return request({
     url:'/regional/selectAll',
@@ -22,7 +30,9 @@ export function getCurrentRegionServeData (pageNum,pageSize) {
   })
 }
 
-// 增
+/**
+ * 增
+ */
 export function addRegionServeData (obj) {
   return request({
     url:'/regional/add',
@@ -34,7 +44,9 @@ export function addRegionServeData (obj) {
   })
 }
 
-// 删
+/**
+ * 删
+ */
 export function deleteRegionServeData (id) {
   return request({
     url:`/regional/${id}`,
@@ -42,7 +54,9 @@ export function deleteRegionServeData (id) {
   })
 }
 
-// 改
+/**
+ * 改
+ */
 export function updateRegionServeData (obj) {
   return request({
     url:'/regional/update',

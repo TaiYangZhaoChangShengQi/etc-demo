@@ -48,7 +48,7 @@ export default {
     // 渲染列表
     updateBeatData () {
       getCurrentDeviceBeatServeData(this.pageNum,this.pageSize).then(res => {
-        console.log("res ", res.data)
+        console.log("res ", res)
         this.beatData = res.data.rows
         this.totalCount = res.data.totalCount
       }).catch(err => {

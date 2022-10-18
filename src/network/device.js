@@ -1,8 +1,12 @@
 import {request} from "@/network/request";
 
-// 存放设备页面所有的网络请求
+/**
+ * 存放设备页面所有的网络请求
+ */
 
-// 列表
+/**
+ * 列表
+ */
 export function getDeviceServeData () {
   return request({
     url:'/device/selectAll',
@@ -10,7 +14,11 @@ export function getDeviceServeData () {
   })
 }
 
-// 分页
+/**
+ * 分页
+ * @param pageNum 页码
+ * @param pageSize 一页展示的数据条数
+ */
 export function getCurrentDeviceServeData (pageNum,pageSize) {
   return request({
     url:'/device/selectAll',
@@ -22,7 +30,9 @@ export function getCurrentDeviceServeData (pageNum,pageSize) {
   })
 }
 
-// 增
+/**
+ * 增
+ */
 export function addDeviceServeData (obj) {
   return request({
     url:'/device/add',
@@ -31,7 +41,9 @@ export function addDeviceServeData (obj) {
   })
 }
 
-// 删
+/**
+ * 删
+ */
 export function deleteDeviceServeData (id) {
   return request({
     url:`/device/${id}`,
@@ -39,7 +51,9 @@ export function deleteDeviceServeData (id) {
   })
 }
 
-// 改
+/**
+ * 改
+ */
 export function updateDeviceServeData (obj) {
   return request({
     url:'/device/update',
@@ -48,7 +62,22 @@ export function updateDeviceServeData (obj) {
   })
 }
 
-// 设备类型 分页
+/**
+ * 查
+ */
+export function searchDeviceServeData (obj) {
+  return request({
+    url:'/device/selectCondition',
+    method:'get',
+    params:obj
+  })
+}
+
+/**
+ * 设备类型 分页
+ * @param pageNum 页码
+ * @param pageSize 一页展示的数据条数
+ */
 export function getCurrentDeviceTypeServeData (pageNum,pageSize) {
   return request({
     url:'/type/selectAll',
@@ -60,7 +89,9 @@ export function getCurrentDeviceTypeServeData (pageNum,pageSize) {
   })
 }
 
-// 设备类型 增
+/**
+ * 设备类型 增
+ */
 export function addDeviceTypeServeData (obj) {
   return request({
     url:'/type/add',
@@ -69,7 +100,9 @@ export function addDeviceTypeServeData (obj) {
   })
 }
 
-// 设备类型 删
+/**
+ * 设备类型 删
+ */
 export function deleteDeviceTypeServeData (id) {
   return request({
     url:`/type/${id}`,
@@ -77,7 +110,9 @@ export function deleteDeviceTypeServeData (id) {
   })
 }
 
-// 设备类型 改
+/**
+ * 设备类型 改
+ */
 export function updateDeviceTypeServeData (obj) {
   return request({
     url:'/type/update',

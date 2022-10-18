@@ -15,7 +15,7 @@
         <!--搜索              -->
         <el-table-column fixed="right" width="200" align="right">
           <template slot="header" slot-scope="scope">
-            <el-input v-model="search" size="medium" placeholder="输入设备名称搜索"/>
+            <el-input v-model="search" size="medium" clearable @clear='getDeviceTypeData' @input="getSearch" placeholder="请输入关键字"/>
           </template>
           <template v-slot="scope">
             <el-button size="medium" type="warning" @click="editDevTypeData(scope.row.id) ">修改</el-button>
@@ -76,6 +76,7 @@ export default {
       store,
       devTypeForm: {}, //修改信息的表单
       PageName:'设备类型',
+      search: '',
       pageNum:'1',
       pageSize:'10',
       totalCount:0,
@@ -169,7 +170,26 @@ export default {
       }).catch(err => {
         console.log('err',err)
       })
-    }
+    },
+
+    /**
+     * 关键字搜索
+     */
+    getSearch () {
+      let keyWord = this.search.toLowerCase()
+      let arr = []
+      //输入内容为空时返回原数据
+      if (keyWord === '') {
+        this.getDeviceTypeData()
+      }
+      arr = this.store.deviceTypeData.filter(item => {
+        if (item.typeName.toLowerCase().indexOf(keyWord) !== -1) {
+          return item
+        }
+      })
+      this.totalCount = arr.length
+      this.store.deviceTypeData = arr
+    },
   },
 
   }

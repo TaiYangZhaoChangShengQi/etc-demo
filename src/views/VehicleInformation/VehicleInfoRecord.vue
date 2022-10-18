@@ -3,7 +3,17 @@
     <div class="vehicle-line">
       <div class="vehicle-page">{{PageName}}</div>
       <div class="vehicle-button">
-        <el-button type="primary" @click="dialogAddVehicleVisible = true">添加车辆</el-button>
+        <div class="vehicle-button-input">
+          <el-input class="input-style" v-model="searchForm.licensePlate" size="medium" placeholder="请输入车牌号"/>
+          <el-input class="input-style" v-model="searchForm.obuId" size="medium" placeholder="请输入OBU ID"/>
+          <el-input class="input-style" v-model="searchForm.siteName" size="medium" placeholder="请输入识别站点"/>
+          <el-date-picker class="input-style" type="datetime" format="yyyy-MM-dd" value-format="yyyy-MM-dd" placeholder="选择日期" v-model="searchForm.startTime"></el-date-picker>
+          -
+          <el-date-picker class="input-style" type="datetime" format="yyyy-MM-dd" value-format="yyyy-MM-dd" placeholder="选择日期" v-model="searchForm.endTime" ></el-date-picker>
+          <el-button class="add-margin" type="primary" icon="el-icon-search" @click="getQuery">搜索</el-button>
+          <el-button style="width: 80px" type="primary" @click="updateVehicleData">重置</el-button>
+        </div>
+        <el-button style="width: 100px" type="primary" @click="dialogAddVehicleVisible = true">添加车辆</el-button>
       </div>
     </div>
     <div class="vehicle-list">
@@ -34,20 +44,12 @@
         </el-form-item>
         <el-form-item label="开始时间">
           <el-col :span="11">
-            <el-date-picker type="date" placeholder="选择日期" v-model="date1" style="width: 100%;"></el-date-picker>
-          </el-col>
-          <el-col class="line" :span="1">-</el-col>
-          <el-col :span="11">
-            <el-time-picker placeholder="选择时间" v-model="time1" style="width: 100%;"></el-time-picker>
+            <el-date-picker v-model="date1" type="datetime" format="yyyy-MM-dd HH:mm:ss" value-format="yyyy-MM-dd HH:mm:ss" placeholder="选择日期时间"/>
           </el-col>
         </el-form-item>
         <el-form-item label="结束时间">
           <el-col :span="11">
-            <el-date-picker type="date" placeholder="选择日期" v-model="date3" style="width: 100%;"></el-date-picker>
-          </el-col>
-          <el-col class="line" :span="1">-</el-col>
-          <el-col :span="11">
-            <el-time-picker placeholder="选择时间" v-model="time3" style="width: 100%;"></el-time-picker>
+            <el-date-picker v-model="date3" type="datetime" format="yyyy-MM-dd HH:mm:ss" value-format="yyyy-MM-dd HH:mm:ss" placeholder="选择日期时间"/>
           </el-col>
         </el-form-item>
         <el-form-item label="识别次数">
@@ -74,7 +76,7 @@
 
 <script>
 import {store} from "@/store/store";
-import {getAllVehicleServeData,getCurrentVehicleServeData,addVehicleServeData} from "@/network/vehicle";
+import {getAllVehicleServeData,getCurrentVehicleServeData,addVehicleServeData,searchVehicleServeData} from "@/network/vehicle";
 
 export default {
   name: 'CarInfoRecord',
@@ -84,6 +86,8 @@ export default {
       store,
       search: '',
       PageName: '车辆信息记录',
+      startDate:'',
+      endDate:'',
       date1:'',
       time1:'',
       date3:'',
@@ -93,6 +97,15 @@ export default {
       totalCount:0,
       vehicleData:[], // 渲染列表
       dialogAddVehicleVisible:false,
+      searchForm:{
+        currentPage:1,
+        pageSize:100,
+        obuId:'',
+        licensePlate:'',
+        siteName:'',
+        startTime:'',
+        endTime:'',
+      },
       vehicleForm: {   // 添加信息的表单
         obuId:'',
         licensePlate:'',
@@ -101,6 +114,8 @@ export default {
         frequency: '', // 识别次数
         siteId: '',
         devId: '',
+        trackRecord:'',
+        rawData:'',
       },
     }
   },
@@ -124,10 +139,11 @@ export default {
 
     // 添加
     addVehicle () {
-      this.vehicleForm.startTime = this.date1 + '\xa0' + this.time1
-      this.vehicleForm.endTime = this.date3 + '\xa0' + this.time3
+      this.vehicleForm.startTime = this.date1
+      this.vehicleForm.endTime = this.date3
+      console.log(typeof this.vehicleForm.startTime)
       addVehicleServeData(this.vehicleForm).then(res => {
-        console.log(res)
+        console.log('221',res)
         this.reload()
       }).catch(err => {
         console.log(err)
@@ -155,7 +171,21 @@ export default {
       }).catch(err => {
         console.log(err)
       })
-    }
+    },
+
+    /**
+     * 后端条件搜索
+     */
+    getQuery () {
+      console.log('23',this.searchForm.startTime)
+      console.log('24',this.searchForm)
+      searchVehicleServeData(this.searchForm).then(res => {
+        console.log("res1 " , res)
+        this.vehicleData = res.data.rows
+      }).catch(err => {
+        console.log(err)
+      })
+    },
   }
 }
 </script>
@@ -180,5 +210,27 @@ export default {
   }
   .vehicle-list {
     box-shadow: 0 2px 4px rgba(0, 0, 0, .12), 0 0 6px rgba(0, 0, 0, .04);
+  }
+
+  .vehicle-button {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .vehicle-button-input {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 1040px;
+    margin-right: 50px;
+  }
+
+  .input-style {
+    padding-top: 3px;
+    width: 150px;
+  }
+
+  .add-margin {
+    margin-left: 10px;
   }
 </style>

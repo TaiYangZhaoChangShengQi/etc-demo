@@ -2,6 +2,7 @@ import { reactive } from 'vue'
 import {getCurrentRegionServeData} from "@/network/region";
 import {getCurrentSiteServeData} from "@/network/site";
 import {getCurrentDeviceServeData, getCurrentDeviceTypeServeData} from "@/network/device";
+import {getCurrentVehicleServeData} from "@/network/vehicle";
 
 export const store = reactive({
   defaultProps: {
@@ -22,6 +23,7 @@ export const store = reactive({
   siteData:[],
   siteAllData:[],
   vehicleData:[],
+  vehicleAllData:[],
   deviceAllData:[],
   deviceTypeData:[],
   deviceTypeAllData:[],
@@ -91,6 +93,17 @@ export const store = reactive({
   UpDevData () {
     getCurrentDeviceServeData(this.pageNum,this.pageSize).then(res => {
       this.deviceAllData = res.data.rows
+    }).catch(err => {
+      console.log(err)
+    })
+  },
+
+  /**
+   * 获取全部车辆信息数据
+   */
+  getAllVehicleData () {
+    getCurrentVehicleServeData(this.pageNum,this.pageSize).then(res => {
+      this.vehicleAllData = res.data.rows
     }).catch(err => {
       console.log(err)
     })
