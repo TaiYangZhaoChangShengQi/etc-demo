@@ -8,7 +8,6 @@
         <input type="text" readonly="true" v-model="gps">
       </div>
     </div>
-    
     <!-- 修改覆盖物 -->
     <div class="change-draw" v-show="showChangeDraw">
       <el-row>
@@ -103,7 +102,6 @@ export default {
           console.log('45615')
           this.changeDraw(this.$route.query.id)
         }
-
       }).catch(e => {
         console.log(e)
       })

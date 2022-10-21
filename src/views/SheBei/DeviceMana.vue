@@ -55,7 +55,6 @@
           </el-pagination>
         </div>
       </div>
-
       <!--添加设备对话框 -->
         <el-dialog title="添加设备" :visible.sync="dialogFormVisible" width="40%">
         <el-form ref="form" :model="form" label-width="120px">

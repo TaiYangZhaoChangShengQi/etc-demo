@@ -230,8 +230,6 @@ export default {
       this.$refs.child.addMarkerToMap(num1)
     },
 
-
-
     /**
      * 取消画图
      */

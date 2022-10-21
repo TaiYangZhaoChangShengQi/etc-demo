@@ -34,7 +34,6 @@
               @size-change="sizeChange" @current-change="currentChange" :total="totalCount">
       </el-pagination>
     </div>
-
     <!-- 添加车辆信息对话框 -->
     <el-dialog title="提示" :visible.sync="dialogAddVehicleVisible" width="40%">
       <el-form ref="form" :model="vehicleForm" label-width="80px" >

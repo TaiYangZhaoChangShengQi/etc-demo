@@ -34,7 +34,6 @@
         <span slot="title">设备心跳</span>
       </el-menu-item>
     </el-menu>
-
   </div>
 </template>
 

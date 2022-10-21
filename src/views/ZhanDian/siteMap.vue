@@ -31,10 +31,8 @@
           <el-button size="medium" type="primary" @click="endChange">完成修改</el-button>
         </el-row>
       </div>
-
     </div>
   </div>
-
 
 </template>
 

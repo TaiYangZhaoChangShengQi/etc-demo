@@ -343,8 +343,11 @@ export default {
       this.dialogChangeVisible = false
     },
 
-    // 删除站点函数
-    deleteSite (id) { // id 站点id,stieId
+    /**
+     * 删除站点函数
+     * @param id 站点id
+     */
+    deleteSite (id) {
       deleteSiteServeData(id).then(res => {
         console.log('res',res)
         this.reload()
