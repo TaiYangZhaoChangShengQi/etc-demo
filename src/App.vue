@@ -42,6 +42,7 @@ export default {
     this.store.getSiteAllDataList()
     this.store.getDeviceTypeData()
     this.store.UpDevData()
+    this.store.getAllVehicleData()
   },
 
   methods:{
@@ -71,7 +72,7 @@ export default {
   }
   .View {
     margin-left: 10px;
-    padding: 20px;
+    padding: 15px 20px;
     overflow: hidden;
     height: 100%;
     border-style: none;

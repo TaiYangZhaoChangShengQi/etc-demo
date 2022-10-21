@@ -26,3 +26,14 @@ export function getCurrentDeviceBeatServeData (pageNum,pageSize) {
     }
   })
 }
+
+/**
+ * 查
+ */
+export function searchBeatServeData (obj) {
+  return request({
+    url:'/heartBeat/selectDevId',
+    method:'get',
+    params:obj
+  })
+}

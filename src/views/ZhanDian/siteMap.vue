@@ -183,7 +183,9 @@ export default {
      */
     searchSite (siteId) {
       let myId = Number(siteId)
+      console.log(this.store.siteAllData)
       for (let i = 0; i < this.store.siteAllData.length; i++) {
+        console.log(this.store.siteAllData[i].siteId)
         if (myId === this.store.siteAllData[i].siteId) {
           this.arr = this.store.siteAllData[i].siteRange
           this.i = i

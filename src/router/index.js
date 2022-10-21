@@ -8,6 +8,7 @@ import RegManaList from '@/views/QuYu/RegManaList'
 import DeviceMana from '@/views/SheBei/DeviceMana'
 import DeviceTypeMana from "@/views/SheBei/DeviceTypeMana";
 import CarInfoRecord from '@/views/VehicleInformation/VehicleInfoRecord'
+import vehicleMap from "@/views/VehicleInformation/vehicleMap";
 import DeviceBeatMana from "@/views/SheBeiXinTiao/DeviceBeatMana";
 import siteMap from "@/views/ZhanDian/siteMap";
 
@@ -56,6 +57,10 @@ const routes = [
   {
     path: '/CarInfoRecord',
     component: CarInfoRecord
+  },
+  {
+    path: '/vehicleMap',
+    component: vehicleMap,
   },
   {
     path: '/DeviceBeatMana',

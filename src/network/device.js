@@ -74,6 +74,19 @@ export function searchDeviceServeData (obj) {
 }
 
 /**
+ * 查询设备状态
+ */
+export function searchDeviceStateServeData (id) {
+  return request({
+    url:'/heartBeat/state',
+    method:'post',
+    params:{
+      devId:id
+    }
+  })
+}
+
+/**
  * 设备类型 分页
  * @param pageNum 页码
  * @param pageSize 一页展示的数据条数

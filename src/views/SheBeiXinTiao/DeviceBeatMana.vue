@@ -1,9 +1,18 @@
 <template>
   <div class="beat-content">
+    <div class="beat-line">
+      <div class="beat-page">{{pageName}}</div>
+      <div class="beat-button">
+        <div class="beat-button-input">
+          <el-select class="adjustment" clearable style="width: 165px" v-model="searchForm.devId" placeholder="请选择设备类型">
+            <el-option v-for="(item) in this.store.deviceAllData" :key="item.id" :label="item.devName" :value="item.devId" @click.native="getQuery"/>
+          </el-select>
+        </div>
+      </div>
+    </div>
     <div class="beat-list">
       <el-table
-              :data="beatData"
-              style="width: 100%">
+              :data="getOrSearch === 0? beatData:beatSearchData " style="width: 100%" height="540">
         <el-table-column align="center" label="设备ID" min-width="100" prop="devId"/>
         <el-table-column align="center" label="设备名称" min-width="200" prop="devName" sortable/>
         <el-table-column align="center" label="创建时间" min-width="200" prop="createTime"/>
@@ -26,17 +35,26 @@
 </template>
 
 <script>
-import {getCurrentDeviceBeatServeData} from "@/network/beat";
-
+import {getCurrentDeviceBeatServeData,searchBeatServeData} from "@/network/beat";
+import {store} from "@/store/store";
 export default {
   name: "DeviceBeatMana",
   data () {
     return {
+      store,
       beatData: [],
+      beatSearchData: [],
+      getOrSearch:0,
       search:'',
+      pageName: '设备心跳',
       pageNum:'1',
       pageSize:'10',
       totalCount:0,
+      searchForm:{
+        currentPage:1,
+        pageSize:10,
+        devId:'',
+      },
     }
   },
 
@@ -48,9 +66,9 @@ export default {
     // 渲染列表
     updateBeatData () {
       getCurrentDeviceBeatServeData(this.pageNum,this.pageSize).then(res => {
-        console.log("res ", res)
         this.beatData = res.data.rows
         this.totalCount = res.data.totalCount
+        this.getOrSearch = 0
       }).catch(err => {
         console.log(err)
       })
@@ -58,25 +76,65 @@ export default {
 
     // 选择某一页
     currentChange (val) {
-      this.pageNum = val
-      getCurrentDeviceBeatServeData(this.pageNum,this.pageSize).then(res => {
-        console.log("res " , res.data)
-        this.beatData = res.data.rows
+      if (this.getOrSearch === 0) {
+        this.pageNum = val
+        getCurrentDeviceBeatServeData(this.pageNum,this.pageSize).then(res => {
+          console.log("res " , res.data)
+          this.beatData = res.data.rows
+        }).catch(err => {
+          console.log(err)
+        })
+      } else {
+        this.searchForm.currentPage = val
+        searchBeatServeData(this.searchForm).then(res => {
+          this.beatSearchData = res.data.rows
+          this.totalCount = res.data.totalCount
+          this.getOrSearch = 1
+        }).catch(err => {
+          console.log(err)
+        })
+      }
+    },
+
+    // 选择展示的数据条数
+    sizeChange (val) {
+      if (this.getOrSearch === 0) {
+        this.pageSize = val
+        getCurrentDeviceBeatServeData(this.pageNum,this.pageSize).then(res => {
+          this.beatData = res.data.rows
+        }).catch(err => {
+          console.log(err)
+        })
+      } else {
+        this.searchForm.pageSize = val
+        searchBeatServeData(this.searchForm).then(res => {
+          this.beatSearchData = res.data.rows
+          this.getOrSearch = 1
+        }).catch(err => {
+          console.log(err)
+        })
+      }
+
+
+
+    },
+
+    /**
+     * 后端条件搜索
+     */
+    getQuery () {
+      this.searchForm.devId = Number(this.searchForm.devId)
+      console.log(typeof this.searchForm.devId)
+      searchBeatServeData(this.searchForm).then(res => {
+        console.log(res)
+        this.beatSearchData = res.data.rows
+        this.totalCount = res.data.totalCount
+        this.getOrSearch = 1
       }).catch(err => {
         console.log(err)
       })
     },
 
-    // 选择展示的数据条数
-    sizeChange (val) {
-      this.pageSize = val
-      getCurrentDeviceBeatServeData(this.pageNum,this.pageSize).then(res => {
-        console.log("res " , res.data)
-        this.beatData = res.data.rows
-      }).catch(err => {
-        console.log(err)
-      })
-    }
   }
 }
 </script>
@@ -84,5 +142,20 @@ export default {
 <style scoped>
   .beat-list {
     box-shadow: 0 2px 4px rgba(0, 0, 0, .12), 0 0 6px rgba(0, 0, 0, .04);
+  }
+
+  .beat-line {
+    display: flex;
+    margin-bottom: 10px;
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .beat-page {
+    height: 40px;
+    font-size: 18px;
+    font-weight: 400;
+    line-height: 40px;
+    color: rgba(0,0,0,.85);
   }
 </style>

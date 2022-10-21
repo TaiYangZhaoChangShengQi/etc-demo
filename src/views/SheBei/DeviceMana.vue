@@ -5,10 +5,14 @@
           <div class="dev-item-line-path">{{PageName}}</div>
           <div class="dev-item-line-button">
             <div class="dev-item-line-button-input">
-              <el-input class="input-style" v-model="searchForm.devNumber" size="medium" placeholder="请输入设备编号"/>
-              <el-input class="input-style" v-model="searchForm.devName" size="medium" placeholder="请输入设备名称"/>
-              <el-input class="input-style" v-model="searchForm.siteName" size="medium" placeholder="请输入站点名称"/>
-              <el-input class="input-style" v-model="searchForm.typeName" size="medium" placeholder="请输入设备类型"/>
+              <el-input class="input-style" clearable v-model="searchForm.devNumber" size="medium" placeholder="请输入设备编号"/>
+              <el-input class="input-style" clearable v-model="searchForm.devName" size="medium" placeholder="请输入设备名称"/>
+              <el-select class="adjustment" clearable style="width: 150px" v-model="searchForm.siteName" placeholder="请选择站点">
+                <el-option v-for="(item) in this.store.siteAllData" :key="item.siteId" :label="item.siteName" :value="item.siteName"/>
+              </el-select>
+              <el-select class="adjustment" clearable style="width: 165px" v-model="searchForm.typeName" placeholder="请选择设备类型">
+                <el-option v-for="(item) in this.store.deviceTypeAllData" :key="item.id" :label="item.typeName" :value="item.typeName"/>
+              </el-select>
               <el-button class="add-margin" type="primary" icon="el-icon-search" @click="getQuery">搜索</el-button>
               <el-button style="width: 80px" type="primary" @click="UpDevData">重置</el-button>
             </div>
@@ -17,21 +21,28 @@
         </div>
         <div class="dev-item-table">
           <el-table
-            :data="deviceData"
+            :data="getOrSearch === 0? deviceData:deviceSearchData"
             style="width: 100%">
             <el-table-column align="center" fixed label="设备编号" min-width="100" prop="devNumber"/>
             <el-table-column align="center" label="设备名称" min-width="100" prop="devName"/>
             <el-table-column align="center" label="所属站点" min-width="150" prop="siteName"/>
-            <el-table-column align="center" label="IP地址" min-width="150" prop="ip"/>
+            <el-table-column align="center" label="IP地址" min-width="120" prop="ip"/>
             <el-table-column align="center" label="MAC地址" min-width="160" prop="mac"/>
             <el-table-column align="center" label="设备类型" min-width="100" prop="typeName"/>
+            <el-table-column align="center" label="设备状态" min-width="100">
+              <template slot-scope="scope">
+                <div v-if="scope.row.state === 1">在线</div>
+                <div v-else>离线</div>
+              </template>
+            </el-table-column>
             <el-table-column align="center" label="备注" min-width="100" prop="remarks"/>
             <!--搜索              -->
-            <el-table-column fixed="right" width="200" align="right">
+            <el-table-column fixed="right" width="260" align="right">
               <template slot="header" slot-scope="scope">
                 <el-input v-model="search" size="medium" clearable @clear='UpDevData' @input="getSearch" placeholder="请输入关键字"/>
               </template>
               <template v-slot="scope">
+                <el-button size="medium" type="warning" @click="queryState(scope.row.devId)">状态</el-button>
                 <el-button size="medium" type="warning" @click="editDevData(scope.row.devNumber) ">修改</el-button>
                 <el-button size="medium" type="danger" @click="deleteDevDate(scope.row.devId)">删除</el-button>
               </template>
@@ -114,11 +125,8 @@
 
 <script>
 import {
-  getCurrentDeviceServeData,
-  addDeviceServeData,
-  deleteDeviceServeData,
-  updateDeviceServeData,
-  searchDeviceServeData} from "@/network/device";
+  getCurrentDeviceServeData, addDeviceServeData, deleteDeviceServeData,
+  updateDeviceServeData, searchDeviceServeData,searchDeviceStateServeData} from "@/network/device";
 import {store} from "@/store/store";
 
 export default {
@@ -128,11 +136,14 @@ export default {
     return {
       store,
       search: '',
+      getOrSearch:0,
+      state:'在',
       pageNum:'1',
       pageSize:'10',
       totalCount:0,
       devForm: {}, //修改信息的表单
       deviceData: [], //渲染列表
+      deviceSearchData: [], //渲染判断列表
       PageName: '设备管理',
       dialogFormVisible: false, //添加设备 显示开关
       dialogChangeDevFormVisible: false,  //修改设备 显示开关
@@ -142,7 +153,7 @@ export default {
       },
       searchForm:{
         currentPage:1,
-        pageSize:100,
+        pageSize:10,
         devNumber:'',
         devName:'',
         siteName:'',
@@ -170,34 +181,53 @@ export default {
      */
     UpDevData () {
       getCurrentDeviceServeData(this.pageNum,this.pageSize).then(res => {
+        console.log(res.data.rows)
         this.deviceData = res.data.rows
         this.totalCount = res.data.totalCount
+        this.getOrSearch = 0
       }).catch(err => {
         console.log(err)
       })
     },
 
-    // 选择某一页
+    /**
+     *  选择某一页
+     */
     currentChange (val) {
-      this.pageNum = val
-      getCurrentDeviceServeData(this.pageNum,this.pageSize).then(res => {
-        this.deviceData = res.data.rows
-      }).catch(err => {
-        console.log(err)
-      })
+      if (this.getOrSearch === 0) {
+        this.pageNum = val
+        getCurrentDeviceServeData(this.pageNum,this.pageSize).then(res => {
+          this.deviceData = res.data.rows
+        }).catch(err => {
+          console.log(err)
+        })
+      } else {
+        this.searchForm.currentPage = val
+        this.getQuery()
+      }
     },
 
-    // 选择展示的数据条数
+    /**
+     * 选择展示的数据条数
+     */
     sizeChange (val) {
-      this.pageSize = val
-      getCurrentDeviceServeData(this.pageNum,this.pageSize).then(res => {
-        this.deviceData = res.data.rows
-      }).catch(err => {
-        console.log(err)
-      })
+      if (this.getOrSearch === 0) {
+        this.pageSize = val
+        getCurrentDeviceServeData(this.pageNum,this.pageSize).then(res => {
+          this.deviceData = res.data.rows
+        }).catch(err => {
+          console.log(err)
+        })
+      } else {
+        this.searchForm.pageSize = val
+        this.getQuery()
+      }
+
     },
 
-    // 添加设备
+    /**
+     * 添加设备
+     */
     addDev () {
       addDeviceServeData(this.form).then(res => {
         this.reload()
@@ -208,18 +238,23 @@ export default {
       this.dialogFormVisible = false
     },
 
-    // 修改设备信息
+    /**
+     * 修改设备信息
+     * @param devNum 设备编号
+     */
     editDevData (devNum) {
       this.dialogChangeDevFormVisible = true
-      for (let i = 0; i < this.deviceData.length; i++) {
-        if (devNum === this.deviceData[i].devNumber) {
-          const c = JSON.parse(JSON.stringify(this.deviceData[i]))
+      this.deviceData.map((item) => {
+        if (devNum === item.devNumber) {
+          const c = JSON.parse(JSON.stringify(item))
           this.devForm = c
         }
-      }
+      })
     },
 
-    // 保存修改的设备信息
+    /**
+     * 保存修改的设备信息
+     */
     submitDevData () {
       updateDeviceServeData(this.devForm).then(res => {
         this.reload()
@@ -229,8 +264,11 @@ export default {
       this.dialogChangeDevFormVisible = false
     },
 
-    // 删除设备信息
-    deleteDevDate (id) { //设备id
+    /**
+     * 删除设备信息
+     * @param id 设备id
+     */
+    deleteDevDate (id) {
       deleteDeviceServeData(id).then(res => {
         this.reload()
       }).catch(err => {
@@ -268,12 +306,29 @@ export default {
      */
     getQuery () {
       searchDeviceServeData(this.searchForm).then(res => {
-        this.deviceData = res.data.rows
+        this.deviceSearchData = res.data.rows
         this.totalCount = res.data.totalCount
+        this.getOrSearch = 1
       }).catch(err => {
         console.log(err)
       })
     },
+
+    /**
+     * 查询设备状态
+     * @param id 设备id
+     */
+    queryState (id) {
+      id = Number(id)
+      console.log(id)
+      id = 2
+      searchDeviceStateServeData(id).then(res => {
+        console.log(res)
+        this.UpDevData()
+      }).catch(err => {
+        console.log(err)
+      })
+    }
   },
 }
 </script>
@@ -308,6 +363,10 @@ export default {
     justify-content: space-between;
   }
 
+  .el-button--primary /deep/ .el-icon-search {
+    margin-right: 5px;
+  }
+
   .dev-item-line-button-input {
     display: flex;
     justify-content: space-between;
@@ -325,6 +384,9 @@ export default {
     margin-left: 10px;
   }
 
+  .adjustment {
+    margin-top: 4px;
+  }
   .dev-item-table {
     box-shadow: 0 2px 4px rgba(0, 0, 0, .12), 0 0 6px rgba(0, 0, 0, .04);
   }

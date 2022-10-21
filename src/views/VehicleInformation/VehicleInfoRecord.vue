@@ -6,10 +6,12 @@
         <div class="vehicle-button-input">
           <el-input class="input-style" v-model="searchForm.licensePlate" size="medium" placeholder="请输入车牌号"/>
           <el-input class="input-style" v-model="searchForm.obuId" size="medium" placeholder="请输入OBU ID"/>
-          <el-input class="input-style" v-model="searchForm.siteName" size="medium" placeholder="请输入识别站点"/>
-          <el-date-picker class="input-style" type="datetime" format="yyyy-MM-dd" value-format="yyyy-MM-dd" placeholder="选择日期" v-model="searchForm.startTime"></el-date-picker>
+          <el-select clearable style="width: 150px; margin-top: 4px" v-model="searchForm.siteName" placeholder="请选择站点">
+            <el-option v-for="(item) in this.store.siteAllData" :key="item.siteId" :label="item.siteName" :value="item.siteName"/>
+          </el-select>
+          <el-date-picker class="input-style" type="datetime" format="yyyy-MM-dd" value-format="yyyy-MM-dd" placeholder="选择日期时间" v-model="searchForm.startTime"></el-date-picker>
           -
-          <el-date-picker class="input-style" type="datetime" format="yyyy-MM-dd" value-format="yyyy-MM-dd" placeholder="选择日期" v-model="searchForm.endTime" ></el-date-picker>
+          <el-date-picker class="input-style" type="datetime" format="yyyy-MM-dd" value-format="yyyy-MM-dd" placeholder="选择日期时间" v-model="searchForm.endTime" ></el-date-picker>
           <el-button class="add-margin" type="primary" icon="el-icon-search" @click="getQuery">搜索</el-button>
           <el-button style="width: 80px" type="primary" @click="updateVehicleData">重置</el-button>
         </div>
@@ -17,10 +19,10 @@
       </div>
     </div>
     <div class="vehicle-list">
-      <el-table :data="vehicleData" style="width: 100%">
+      <el-table :data="getOrSearch === 0? vehicleData:vehicleSearchData " style="width: 100%">
         <el-table-column align="center" label="序号" width="100" prop="virId" sortable/>
         <el-table-column align="center" label="车牌" width="200" prop="licensePlate" sortable/>
-        <el-table-column align="center" label="OBU ID" min-width="200" prop="obuId"/>
+        <el-table-column align="center" label="OBU ID" min-width="200" prop="obuId" sortable/>
         <el-table-column align="center" label="开始时间" min-width="200" prop="startTime" sortable/>
         <el-table-column align="center" label="结束时间" min-width="200" prop="endTime" sortable/>
         <el-table-column align="center" label="识别次数" width="150" prop="frequency"/>
@@ -96,10 +98,12 @@ export default {
       pageSize:'10',
       totalCount:0,
       vehicleData:[], // 渲染列表
+      vehicleSearchData:[], // 渲染判断列表
+      getOrSearch:0,
       dialogAddVehicleVisible:false,
       searchForm:{
         currentPage:1,
-        pageSize:100,
+        pageSize:10,
         obuId:'',
         licensePlate:'',
         siteName:'',
@@ -125,25 +129,27 @@ export default {
   },
 
   methods: {
-    // 渲染列表
+    /**
+     * 获取设备列表
+     */
     updateVehicleData () {
       getAllVehicleServeData().then(res => {
-        console.log("res " , res.data)
         this.vehicleData = res.data.rows
         this.totalCount = res.data.totalCount
         this.store.vehicleData = res.data.rows
+        this.getOrSearch = 0
       }).catch(err => {
         console.log(err)
       })
     },
 
-    // 添加
+    /**
+     * 添加
+     */
     addVehicle () {
       this.vehicleForm.startTime = this.date1
       this.vehicleForm.endTime = this.date3
-      console.log(typeof this.vehicleForm.startTime)
       addVehicleServeData(this.vehicleForm).then(res => {
-        console.log('221',res)
         this.reload()
       }).catch(err => {
         console.log(err)
@@ -151,37 +157,52 @@ export default {
       this.dialogAddVehicleVisible = false
     },
 
-    // 选择某一页
+    /**
+     * 选择某一页
+     * @param val 页码
+     */
     currentChange (val) {
-      this.pageNum = val
-      getCurrentVehicleServeData(this.pageNum,this.pageSize).then(res => {
-        console.log("res " , res.data)
-        this.vehicleData = res.data.rows
-      }).catch(err => {
-        console.log(err)
-      })
+      if (this.getOrSearch === 0) {
+        this.pageNum = val
+        getCurrentVehicleServeData(this.pageNum,this.pageSize).then(res => {
+          this.vehicleData = res.data.rows
+        }).catch(err => {
+          console.log(err)
+        })
+      } else {
+        this.searchForm.currentPage = val
+        this.getQuery()
+      }
+
     },
 
-    // 选择展示的数据条数
+    /**
+     * 选择展示的数据条数
+     * @param val 页面的数据条数
+     */
     sizeChange (val) {
-      this.pageSize = val
-      getCurrentVehicleServeData(this.pageNum,this.pageSize).then(res => {
-        console.log("res " , res.data)
-        this.vehicleData = res.data.rows
-      }).catch(err => {
-        console.log(err)
-      })
+      if (this.getOrSearch === 0) {
+        this.pageSize = val
+        getCurrentVehicleServeData(this.pageNum,this.pageSize).then(res => {
+          this.vehicleData = res.data.rows
+        }).catch(err => {
+          console.log(err)
+        })
+      } else {
+        this.searchForm.pageSize = val
+        this.getQuery()
+      }
     },
 
     /**
      * 后端条件搜索
      */
     getQuery () {
-      console.log('23',this.searchForm.startTime)
-      console.log('24',this.searchForm)
       searchVehicleServeData(this.searchForm).then(res => {
-        console.log("res1 " , res)
-        this.vehicleData = res.data.rows
+        console.log('se',res.data)
+        this.vehicleSearchData = res.data.rows
+        this.totalCount = res.data.totalCount
+        this.getOrSearch = 1
       }).catch(err => {
         console.log(err)
       })
@@ -223,6 +244,10 @@ export default {
     align-items: center;
     width: 1040px;
     margin-right: 50px;
+  }
+
+  .el-button--primary /deep/ .el-icon-search {
+    margin-right: 5px;
   }
 
   .input-style {

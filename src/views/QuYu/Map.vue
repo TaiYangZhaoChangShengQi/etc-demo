@@ -78,7 +78,8 @@ export default {
         key: 'e0182f82d3a2e2470ca386ea85595acc', // 申请好的Web端开发者Key，首次调用 load 时必填
         version: '2.0', // 指定要加载的 JSAPI 的版本，缺省时默认为 1.4.15
         plugins: ['AMap.AutoComplete', 'AMap.ElasticMarker', 'AMap.TileLayer', 'AMap.PlaceSearch', 'AMap.Scale',"AMap.MarkerCluster",
-          'AMap.OverView', 'AMap.ToolBar','AMap.MouseTool', 'AMap.MapType','AMap.Driving','AMap.DragRoute', 'AMap.PolygonEditor', 'AMap.CircleEditor', 'AMap.ControlBar'] // 需要使用的的插件列表，如比例尺'AMap.Scale'等
+          'AMap.OverView', 'AMap.ToolBar','AMap.MouseTool', 'AMap.MapType','AMap.Driving','AMap.DragRoute', 'AMap.PolygonEditor',
+          'AMap.CircleEditor', 'AMap.ControlBar'] // 需要使用的的插件列表，如比例尺'AMap.Scale'等
       }).then((AMap) => {
         this.newMap = new AMap.Map('map', {
           resizeEnable: true,
@@ -93,8 +94,8 @@ export default {
         })
         // 实例化默认覆盖物
         this.createDefaultPolygon()
+        this.addAllPolygonToMap()
         this.addMarker()
-
         // 响应修改区域功能
         if (this.$route.query.id >= 0) {
           console.log('45615')
@@ -102,7 +103,7 @@ export default {
           console.log('45615')
           this.changeDraw(this.$route.query.id)
         }
-        this.addAllPolygonToMap()
+
       }).catch(e => {
         console.log(e)
       })
@@ -323,33 +324,7 @@ export default {
       this.newMap.setCenter(this.store.siteAllData[num].siteRange)
     },
 
-    /**
-     * 把车牌号放到新数组
-     */
-    removeTheSame () {
-      let list = []
-      this.store.vehicleAllData.map( (item,index) => {
-        list.push(item.licensePlate)
-      })
-      for(let i = 0; i < list.length ; i++){
-        if(this.nameList.lastIndexOf(list[i])===-1){
-          this.nameList.push(list[i])
-        }
-      }
-      console.log( this.nameList)
-    },
 
-    /**
-     * 车辆轨迹
-     */
-    vehicleTrack (num) {
-      let path = []
-      let c = this.store.vehicleAllData[num].trackRecord
-      path= JSON.parse(c)
-      console.log(path)
-      let route = new AMap.DragRoute(this.newMap,path,AMap.DrivingPolicy.LEAST_FEE)
-      route.search()
-    },
   },
 }
 </script>

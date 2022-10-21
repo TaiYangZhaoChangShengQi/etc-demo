@@ -8,9 +8,6 @@
         <el-select style="margin-right: 10px" v-model="value2" placeholder="请选择站点" :disabled="select">
           <el-option v-for="(item,index) in this.store.siteAllData" :key="item.siteId" :label="item.siteName" :value="item.siteId" @click.native="showMarker(index)"/>
         </el-select>
-        <el-select v-model="value3" placeholder="请选择车辆" :disabled="select">
-          <el-option v-for="(item,index) in this.store.vehicleAllData" :key="item.virId" :label="item.licensePlate" :value="item.virId" @click.native="showVehicle(index)"/>
-        </el-select>
       </div>
       <div class="Rebody-item-click">
         <div class="Rebody-item-button">
@@ -145,7 +142,6 @@ export default {
     this.decideSelect()
     this.store.getRegAllData()
     this.store.getSiteAllDataList()
-    this.store.getAllVehicleData()
   },
 
   methods: {
@@ -226,7 +222,7 @@ export default {
     },
 
     /**
-     * 显示指定区域的范围以及站点位置
+     * 显示指定站点位置
      */
     showMarker (num) {
       let num1 = Number(num)
@@ -234,14 +230,7 @@ export default {
       this.$refs.child.addMarkerToMap(num1)
     },
 
-    /**
-     * 显示指定区域的范围以及站点位置
-     */
-    showVehicle (num) {
-      let num1 = Number(num)
-      console.log(num1)
-      this.$refs.child.vehicleTrack(num1)
-    },
+
 
     /**
      * 取消画图

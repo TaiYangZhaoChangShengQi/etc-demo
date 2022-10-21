@@ -7,9 +7,11 @@
         </div>
         <div class="site-item-line-button">
           <div class="site-item-line-button-input">
-            <el-input class="input-style" v-model="searchForm.name" size="medium" placeholder="请输入区域名称"/>
-            <el-input class="input-style" v-model="searchForm.siteName" size="medium" placeholder="请输入站点名称"/>
-            <el-input class="input-style" v-model="searchForm.siteNumber" size="medium" placeholder="请输入站点编号"/>
+            <el-select class="adjustment" clearable style="width: 150px" v-model="searchForm.name" placeholder="请选择区域">
+              <el-option v-for="(item,index) in this.store.regionAllData" :key="item.id" :label="item.name" :value="item.name"/>
+            </el-select>
+            <el-input class="input-style" clearable v-model="searchForm.siteName" size="medium" placeholder="请输入站点名称"/>
+            <el-input class="input-style" clearable v-model="searchForm.siteNumber" size="medium" placeholder="请输入站点编号"/>
             <el-button class="add-margin" type="primary" icon="el-icon-search" @click="getQuery">搜索</el-button>
             <el-button style="width: 80px" type="primary" @click="getSiteDataList">重置</el-button>
           </div>
@@ -19,7 +21,7 @@
       <!-- 站点列表 -->
       <div class="site-item-table">
         <el-table
-          :data="this.store.siteData"
+          :data="getOrSearch === 0? this.store.siteData:siteSearchData"
           style="width: 100%">
           <el-table-column align="center" label="站点编号" min-width="100" prop="siteNumber"/>
           <el-table-column align="center" label="站点名称" min-width="100">
@@ -44,7 +46,7 @@
               <el-input v-model="search" size="medium" clearable @clear='getSiteDataList' @input="getSearch" placeholder="请输入关键字"/>
             </template>
             <template v-slot="scope">
-              <el-button size="medium" type="warning" @click="editSiteData(scope.row.siteNumber)">修改</el-button>&nbsp;&nbsp;&nbsp;
+              <el-button size="medium" type="warning" @click="editSiteData(scope.row.siteId)">修改</el-button>&nbsp;&nbsp;&nbsp;
               <el-button size="medium" type="danger" @click="deleteSite(scope.row.siteId)">删除</el-button>
             </template>
           </el-table-column>
@@ -123,6 +125,8 @@ export default {
     return {
       store,
       search: '',
+      getOrSearch:0,
+      siteSearchData:[],
       pageNum:'1',
       pageSize:'10',
       totalCount:0,
@@ -135,7 +139,7 @@ export default {
       dialogChangeVisible: false, // 控制修改按钮弹窗
       searchForm:{
         currentPage:1,
-        pageSize:100,
+        pageSize:10,
         name:'',
         siteName:'',
         siteNumber:'',
@@ -200,7 +204,8 @@ export default {
         this.store.siteData.splice(0)
         this.store.siteData = res.data.rows
         this.totalCount = res.data.totalCount
-        this.getToArray()
+        this.getOrSearch = 0
+        this.getToArray(this.store.siteData)
       }).catch(err => {
         console.log(err)
       })
@@ -208,11 +213,12 @@ export default {
 
     /**
      * 将字符串类型的经纬度数据转换为数组类型
+     * @param obj 对象数组
      */
-    getToArray () {
-      for (let i = 0; i < this.store.siteData.length; i++) {
-        let c = JSON.parse(this.store.siteData[i].siteRange)
-        this.store.siteData[i].siteRange = c
+    getToArray (obj) {
+      for (let i = 0; i < obj.length; i++) {
+        let c = JSON.parse(obj[i].siteRange)
+        obj[i].siteRange = c
       }
     },
 
@@ -221,15 +227,19 @@ export default {
      * @param val - 页码
      */
     currentChange (val) {
-      this.pageNum = val
-      getCurrentSiteServeData(this.pageNum,this.pageSize).then(res => {
-        this.store.siteData.splice(0)
-        this.store.siteData = res.data.rows
-        this.getToArray()
-        console.log('23',this.store.siteData)
-      }).catch(err => {
-        console.log(err)
-      })
+      if (this.getOrSearch === 0) {
+        this.pageNum = val
+        getCurrentSiteServeData(this.pageNum,this.pageSize).then(res => {
+          this.store.siteData.splice(0)
+          this.store.siteData = res.data.rows
+          this.getToArray()
+        }).catch(err => {
+          console.log(err)
+        })
+      } else {
+        this.searchForm.currentPage = val
+        this.getQuery()
+      }
     },
 
     /**
@@ -237,15 +247,20 @@ export default {
      * @param val - 一页展示的数据条数
      */
     sizeChange (val) {
-      this.pageSize = val
-      getCurrentSiteServeData(this.pageNum,this.pageSize).then(res => {
-        console.log("res " , res.data)
-        this.store.siteData.splice(0)
-        this.store.siteData = res.data.rows
-        this.getToArray()
-      }).catch(err => {
-        console.log(err)
-      })
+      if (this.getOrSearch === 0) {
+        this.pageSize = val
+        getCurrentSiteServeData(this.pageNum,this.pageSize).then(res => {
+          console.log("res " , res.data)
+          this.store.siteData.splice(0)
+          this.store.siteData = res.data.rows
+          this.getToArray()
+        }).catch(err => {
+          console.log(err)
+        })
+      } else {
+        this.searchForm.pageSize = val
+        this.getQuery()
+      }
     },
 
     /**
@@ -289,6 +304,7 @@ export default {
      * @param  siteId - 站点id
      */
     editSiteData (siteId) {
+      console.log('st',siteId)
       console.log(typeof siteId)
       this.$router.push({
         path:'/siteMap',
@@ -296,7 +312,6 @@ export default {
             siteId:siteId,
           }
       })
-
     },
 
     /**
@@ -366,9 +381,10 @@ export default {
      */
     getQuery () {
       searchSiteServeData(this.searchForm).then(res => {
-        this.store.siteData = res.data.rows
+        this.siteSearchData = res.data.rows
         this.totalCount = res.data.totalCount
-        this.getToArray()
+        this.getToArray(this.siteSearchData)
+        this.getOrSearch = 1
       }).catch(err => {
         console.log(err)
       })
@@ -410,11 +426,15 @@ export default {
     justify-content: space-between;
   }
 
+  .el-button--primary /deep/ .el-icon-search {
+    margin-right: 5px;
+  }
+
   .site-item-line-button-input {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    width: 700px;
+    width: 750px;
     margin-right: 50px;
   }
 
@@ -430,6 +450,10 @@ export default {
   .site-item-table {
     width: 100%;
     box-shadow: 0 2px 4px rgba(0, 0, 0, .12), 0 0 6px rgba(0, 0, 0, .04);
+  }
+
+  .adjustment {
+    margin-top: 4px;
   }
 
   .el-dialog {

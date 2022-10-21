@@ -58,3 +58,14 @@ export function searchVehicleServeData (obj) {
     params:obj
   })
 }
+
+/**
+ * 车辆轨迹
+ */
+export function getVehicleTrackServeData (obj) {
+  return request({
+    url:'/vehicle/judge',
+    method:'post',
+    params:obj
+  })
+}

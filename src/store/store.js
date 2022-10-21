@@ -11,6 +11,7 @@ export const store = reactive({
   },
   search: '',
   siteMap:null,
+  vehicleMap:null,
   Marker:null,
   gps:[],
   pageNum:'1',

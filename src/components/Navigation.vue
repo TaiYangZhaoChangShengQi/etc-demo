@@ -19,10 +19,16 @@
           <el-menu-item index="DeviceTypeMana">设备类型</el-menu-item>
         </el-menu-item-group>
       </el-submenu>
-      <el-menu-item index="/CarInfoRecord" class="pad">
-        <i class="el-icon-upload"></i>
-        <span slot="title">车辆信息</span>
-      </el-menu-item>
+      <el-submenu index="/CarInfoRecord" class="pad">
+        <template slot="title">
+          <i class="el-icon-upload"></i>
+          <span>车辆信息</span>
+        </template>
+        <el-menu-item-group>
+          <el-menu-item index="/CarInfoRecord">车辆信息</el-menu-item>
+          <el-menu-item index="/vehicleMap">地图</el-menu-item>
+        </el-menu-item-group>
+      </el-submenu>
       <el-menu-item index="/DeviceBeatMana" class="pad">
         <i class="el-icon-upload"></i>
         <span slot="title">设备心跳</span>
@@ -71,6 +77,7 @@ export default {
     font-weight: 200;
     color: rgba(0,0,0,.85);
   }
+
   .el-submenu .el-menu-item {
     min-width: 150px;
   }
@@ -99,5 +106,9 @@ export default {
   }
   i {
     margin-right: 20px;
+  }
+
+  .el-menu-vertical-demo {
+    border-right: solid 1px #ffffff;
   }
 </style>

@@ -106,29 +106,33 @@ export default {
       })
     },
 
-    // 选择某一页
+    /**
+     *  选择某一页
+     */
     currentChange (val) {
       this.pageNum = val
       getCurrentDeviceTypeServeData(this.pageNum,this.pageSize).then(res => {
-        console.log("res " , res.data)
         this.store.deviceTypeData = res.data.rows
       }).catch(err => {
         console.log(err)
       })
     },
 
-    // 选择展示的数据条数
+    /**
+     * 选择展示的数据条数
+     */
     sizeChange (val) {
       this.pageSize = val
       getCurrentDeviceTypeServeData(this.pageNum,this.pageSize).then(res => {
-        console.log("res " , res.data)
         this.store.deviceTypeData = res.data.rows
       }).catch(err => {
         console.log(err)
       })
     },
 
-    // 添加设备
+    /**
+     * 添加设备类型
+     */
     addDevType () {
       addDeviceTypeServeData(this.form).then(res => {
         console.log(res)
@@ -140,18 +144,23 @@ export default {
       this.dialogFormVisible = false
     },
 
-    // 修改设备信息
+    /**
+     * 修改设备信息
+     * @param devNum 设备编号
+     */
     editDevTypeData (devNum) {
       this.dialogChangeDevFormVisible = true
-      for (let i = 0; i < this.store.deviceTypeData.length; i++) {
-        if (devNum === this.store.deviceTypeData[i].id) {
-          const c = JSON.parse(JSON.stringify(this.store.deviceTypeData[i]))
+      this.store.deviceTypeData.map((item) => {
+        if (devNum === item.id) {
+          const c = JSON.parse(JSON.stringify(item))
           this.devTypeForm = c
         }
-      }
+      })
     },
 
-    // 保存修改的设备信息
+    /**
+     * 保存修改的设备信息
+     */
     submitDevTypeData () {
       updateDeviceTypeServeData(this.devTypeForm).then(res => {
         console.log(res)
@@ -162,10 +171,12 @@ export default {
       this.dialogChangeDevFormVisible = false
     },
 
-    // 删除设备信息
-    deleteDevTypeDate (id) { //设备id
+    /**
+     * 删除设备信息
+     * @param id 设备id
+     */
+    deleteDevTypeDate (id) {
       deleteDeviceTypeServeData(id).then(res => {
-        console.log('res',res)
         this.reload()
       }).catch(err => {
         console.log('err',err)
