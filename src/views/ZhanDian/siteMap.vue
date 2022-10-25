@@ -14,7 +14,7 @@
       <div class="button">
         <el-row>
           <el-button size="medium" type="primary" @click="addMarker">创建</el-button>
-          <el-button size="medium" type="primary" @click="clickToList(str1)">完成</el-button>
+          <el-button size="medium" type="primary" @click="clickToList(str1)">确认位置</el-button>
           <el-button size="medium" type="primary" @click="cancel">取消</el-button>
         </el-row>
       </div>

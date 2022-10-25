@@ -68,4 +68,15 @@ export function updateRegionServeData (obj) {
   })
 }
 
-// 查
+/**
+ * 查站点
+ */
+export function getSiteName (id) {
+  return request({
+    url:'/regional/getSiteName',
+    method:'get',
+    params:{
+      id:id
+    }
+  })
+}

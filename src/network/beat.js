@@ -37,3 +37,13 @@ export function searchBeatServeData (obj) {
     params:obj
   })
 }
+
+/**
+ * 状态
+ */
+export function askState () {
+  return request({
+    url:'/heartBeat/state',
+    method:'post',
+  })
+}

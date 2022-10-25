@@ -14,7 +14,7 @@
                 <el-option v-for="(item) in this.store.deviceTypeAllData" :key="item.id" :label="item.typeName" :value="item.typeName"/>
               </el-select>
               <el-button class="add-margin" type="primary" icon="el-icon-search" @click="getQuery">搜索</el-button>
-              <el-button style="width: 80px" type="primary" @click="UpDevData">重置</el-button>
+              <el-button style="width: 80px" type="primary" @click="clearSearch">重置</el-button>
             </div>
             <el-button type="primary" @click="dialogFormVisible = true">添加设备</el-button>
           </div>
@@ -31,18 +31,17 @@
             <el-table-column align="center" label="设备类型" min-width="100" prop="typeName"/>
             <el-table-column align="center" label="设备状态" min-width="100">
               <template slot-scope="scope">
-                <div v-if="scope.row.state === 1">在线</div>
-                <div v-else>离线</div>
+                <div v-if="scope.row.state === 1"><el-tag size="small">在线</el-tag></div>
+                <div v-else><el-tag type="danger" size="small">离线</el-tag></div>
               </template>
             </el-table-column>
             <el-table-column align="center" label="备注" min-width="100" prop="remarks"/>
             <!--搜索              -->
-            <el-table-column fixed="right" width="260" align="right">
+            <el-table-column fixed="right" width="170" align="right">
               <template slot="header" slot-scope="scope">
                 <el-input v-model="search" size="medium" clearable @clear='UpDevData' @input="getSearch" placeholder="请输入关键字"/>
               </template>
               <template v-slot="scope">
-                <el-button size="medium" type="warning" @click="queryState(scope.row.devId)">状态</el-button>
                 <el-button size="medium" type="warning" @click="editDevData(scope.row.devNumber) ">修改</el-button>
                 <el-button size="medium" type="danger" @click="deleteDevDate(scope.row.devId)">删除</el-button>
               </template>
@@ -126,6 +125,7 @@
 import {
   getCurrentDeviceServeData, addDeviceServeData, deleteDeviceServeData,
   updateDeviceServeData, searchDeviceServeData,searchDeviceStateServeData} from "@/network/device";
+import {askState} from "@/network/beat";
 import {store} from "@/store/store";
 
 export default {
@@ -172,6 +172,7 @@ export default {
 
   created () {
     this.UpDevData()
+    window.setInterval( ()=>{this.askServe()},5000)
   },
 
   methods: {
@@ -327,6 +328,29 @@ export default {
       }).catch(err => {
         console.log(err)
       })
+    },
+
+    /**
+     * 清空搜索框
+     */
+    clearSearch () {
+      this.UpDevData()
+      this.searchForm.devNumber = ''
+      this.searchForm.devName = ''
+      this.searchForm.siteName = ''
+      this.searchForm.typeName = ''
+    },
+
+    /**
+     * 轮询
+     */
+    askServe () {
+      askState().then(res => {
+        console.log(res)
+        this.UpDevData()
+      }).catch(err => {
+        console.log(err)
+      })
     }
   },
 }
@@ -389,6 +413,7 @@ export default {
   .dev-item-table {
     box-shadow: 0 2px 4px rgba(0, 0, 0, .12), 0 0 6px rgba(0, 0, 0, .04);
   }
+
   .el-dialog {
     left: 700px;
     top: 200px;
@@ -404,6 +429,8 @@ export default {
     text-align: center;
   }
 
+  .off-line {
 
+  }
 
 </style>

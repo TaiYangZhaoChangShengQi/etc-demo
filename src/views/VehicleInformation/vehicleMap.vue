@@ -2,7 +2,7 @@
   <div>
     <div class="button-line">
       <div class="button">
-        <el-select class="ct-width" clearable v-model="selectForm.obuId" placeholder="请选择车辆">
+        <el-select class="ct-width" clearable filterable v-model="selectForm.obuId" placeholder="请选择车辆">
           <el-option v-for="(item,index) in this.obuIdList" :key="item" :label="item" :value="item"/>
         </el-select>
         <el-date-picker class="input-style" style="width: 210px" type="datetime"
@@ -126,16 +126,67 @@ export default {
      */
     createDefaultPolygon () {
       this.store.regionAllData.map((item,index) => {
-        this.polygonList[index] = new AMap.Polygon({
-          path: item.area,          // 设置线覆盖物路径
-          fillColor: '#ccebc5',
-          strokeOpacity: 1,
-          fillOpacity: 0,
-          strokeColor: '#6699FF',
-          strokeWeight: 3,
-          strokeStyle: 'solid',
-          strokeDasharray: [5, 5],
-        });
+        switch (this.store.regionAllData[index].riskLevel) {
+          case '无风险':
+            this.polygonList[index] = new AMap.Polygon({
+              path: item.area,          // 设置线覆盖物路径
+              fillColor: '#7FFFD4',
+              strokeOpacity: 1,
+              fillOpacity: 0.7,
+              strokeColor: '#7FFFD4',
+              strokeWeight: 2,
+              strokeStyle: 'solid',
+              strokeDasharray: [5, 5],
+            });
+            break;
+          case '低风险':
+            this.polygonList[index] = new AMap.Polygon({
+              path: item.area,           // 设置线覆盖物路径
+              fillColor: '#00BFFF',
+              strokeOpacity: 1,
+              fillOpacity: 0.7,
+              strokeColor: '#00BFFF',
+              strokeWeight: 2,
+              strokeStyle: 'solid',
+              strokeDasharray: [5, 5],
+            });
+            break;
+          case '中风险':
+            this.polygonList[index] = new AMap.Polygon({
+              path: item.area,          // 设置线覆盖物路径
+              fillColor: '#FFD700',
+              strokeOpacity: 1,
+              fillOpacity: 0.7,
+              strokeColor: '#FFD700',
+              strokeWeight: 2,
+              strokeStyle: 'solid',
+              strokeDasharray: [5, 5],
+            });
+            break;
+          case '高风险':
+            this.polygonList[index] = new AMap.Polygon({
+              path: item.area,         // 设置线覆盖物路径
+              fillColor: '#FF0000',
+              strokeOpacity: 1,
+              fillOpacity: 0.7,
+              strokeColor: '#FF0000',
+              strokeWeight: 2,
+              strokeStyle: 'solid',
+              strokeDasharray: [5, 5],
+            });
+            break;
+          default:
+            this.polygonList[index] = new AMap.Polygon({
+              path: item.area,          // 设置线覆盖物路径
+              fillColor: '#7FFFD4',
+              strokeOpacity: 1,
+              fillOpacity: 0.7,
+              strokeColor: '#7FFFD4',
+              strokeWeight: 3,
+              strokeStyle: 'solid',
+              strokeDasharray: [5, 5],
+            });
+        }
       } )
     },
 

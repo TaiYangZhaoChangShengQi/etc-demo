@@ -25,12 +25,23 @@
         <el-form-item label="区域名称">
           <el-input v-model="RegForm.name"/>
         </el-form-item>
+
+        <el-form-item label="风险等级">
+          <el-select v-model="RegForm.riskLevel" placeholder="请选择风险等级">
+            <el-option v-for="item in riskLevelOptions" :key="item.value" :label="item.label" :value="item.value"/>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="管控等级">
+          <el-select v-model="RegForm.controlLevel" placeholder="请选择管控等级">
+            <el-option v-for="item in controlLevelOptions" :key="item.value" :label="item.label" :value="item.value"/>
+          </el-select>
+        </el-form-item>
         <el-form-item label="备注">
           <el-input v-model="RegForm.remarks"/>
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="submitRegData">保存</el-button>
-          <el-button @click="dialogChangeVisible = false">取消</el-button>
+          <el-button @click="cancelChangeForm">取消</el-button>
         </el-form-item>
       </el-form>
     </el-dialog>
@@ -52,12 +63,49 @@ export default {
       store,
       gps: '',
       newMap:'',
+      siteIdT:'',
       nameList:[],
       RegForm: {},
       polygon:{},
       polyEditor:{},
       dialogRegVisible: false,
       showChangeDraw:false,
+      riskLevelOptions: [
+        {
+          value: '无风险',
+          label: '无风险'
+        },
+        {
+          value: '低风险',
+          label: '低风险'
+        },
+        {
+          value: '中风险',
+          label: '中风险'
+        },
+        {
+          value: '高风险',
+          label: '高风险'
+        }
+      ],
+      controlLevelOptions: [
+        {
+          value: '无',
+          label: '无'
+        },
+        {
+          value: '防范',
+          label: '防范'
+        },
+        {
+          value: '管控',
+          label: '管控'
+        },
+        {
+          value: '封控',
+          label: '封控'
+        }
+      ],
       polygonList:[{},{},{}],   // 覆盖物对象集
       markerList:[[],[],[]],  // 点标记对象的坐标集
       drawPolygonPath:[],   // 覆盖物坐标集
@@ -93,6 +141,7 @@ export default {
         })
         // 实例化默认覆盖物
         this.createDefaultPolygon()
+        console.log('6610')
         this.addAllPolygonToMap()
         this.addMarker()
         // 响应修改区域功能
@@ -102,6 +151,8 @@ export default {
           console.log('45615')
           this.changeDraw(this.$route.query.id)
         }
+        let infoWindow = new AMap.InfoWindow({offset: new AMap.Pixel(0, -30)});
+        // window.setInterval( ()=>{this.askServe()},5000)
       }).catch(e => {
         console.log(e)
       })
@@ -111,7 +162,10 @@ export default {
      * 测试用函数
      */
     testFunc () {
-      this.removeTheSame()
+      let c = new Array()
+      c[0] = new Array()
+      c[0][0] = 1
+      console.log(c)
     },
 
     /**
@@ -119,17 +173,70 @@ export default {
      */
     createDefaultPolygon () {
       //创建多边形覆盖物
+      this.polygonList.splice(0)
+      this.store.getRegAllData()
       for (let i=0 ; i<this.store.regionAllData.length ; i++) {
-        this.polygonList[i] = new AMap.Polygon({
-          path: this.store.regionAllData[i].area,          // 设置线覆盖物路径
-          fillColor: '#ccebc5',
-          strokeOpacity: 1,
-          fillOpacity: 0,
-          strokeColor: '#6699FF',
-          strokeWeight: 3,
-          strokeStyle: 'solid',
-          strokeDasharray: [5, 5],
-        });
+        switch (this.store.regionAllData[i].riskLevel) {
+          case '无风险':
+            this.polygonList[i] = new AMap.Polygon({
+            path: this.store.regionAllData[i].area,          // 设置线覆盖物路径
+            fillColor: '#7FFFD4',
+            strokeOpacity: 1,
+            fillOpacity: 0.7,
+            strokeColor: '#7FFFD4',
+            strokeWeight: 2,
+            strokeStyle: 'solid',
+            strokeDasharray: [5, 5],
+          });
+            break;
+          case '低风险':
+            this.polygonList[i] = new AMap.Polygon({
+              path: this.store.regionAllData[i].area,          // 设置线覆盖物路径
+              fillColor: '#00BFFF',
+              strokeOpacity: 1,
+              fillOpacity: 0.7,
+              strokeColor: '#00BFFF',
+              strokeWeight: 2,
+              strokeStyle: 'solid',
+              strokeDasharray: [5, 5],
+            });
+            break;
+          case '中风险':
+            this.polygonList[i] = new AMap.Polygon({
+              path: this.store.regionAllData[i].area,          // 设置线覆盖物路径
+              fillColor: '#FFD700',
+              strokeOpacity: 1,
+              fillOpacity: 0.7,
+              strokeColor: '#FFD700',
+              strokeWeight: 2,
+              strokeStyle: 'solid',
+              strokeDasharray: [5, 5],
+            });
+            break;
+          case '高风险':
+            this.polygonList[i] = new AMap.Polygon({
+              path: this.store.regionAllData[i].area,          // 设置线覆盖物路径
+              fillColor: '#FF0000',
+              strokeOpacity: 1,
+              fillOpacity: 0.7,
+              strokeColor: '#FF0000',
+              strokeWeight: 2,
+              strokeStyle: 'solid',
+              strokeDasharray: [5, 5],
+            });
+            break;
+          default:
+            this.polygonList[i] = new AMap.Polygon({
+              path: this.store.regionAllData[i].area,          // 设置线覆盖物路径
+              fillColor: '#7FFFD4',
+              strokeOpacity: 1,
+              fillOpacity: 0.7,
+              strokeColor: '#7FFFD4',
+              strokeWeight: 3,
+              strokeStyle: 'solid',
+              strokeDasharray: [5, 5],
+            });
+        }
       }
     },
 
@@ -156,6 +263,7 @@ export default {
       // 先清除覆盖物，再添加覆盖物，以达到只显示一个覆盖物的效果
       this.newMap.remove(this.polygonList)
       this.newMap.add(this.polygonList);
+      console.log(this.polygonList.length)
     },
 
     /**
@@ -285,7 +393,9 @@ export default {
      */
     addMarker () {
       for (let i=0 ; i<this.store.siteAllData.length ; i++) {
-       this.markerList[i] = new AMap.Marker({
+        this.markerList[i] = new Array()
+        this.markerList[i][0] = this.store.siteAllData[i].siteName
+        this.markerList[i][1] = new AMap.Marker({
           position: this.store.siteAllData[i].siteRange,
           offset: new AMap.Pixel(-13, -30),
           label:{
@@ -304,24 +414,53 @@ export default {
      */
     addAllMarkerToMap (num) {
       for (let i=0 ; i<this.markerList.length ; i++) {
-        this.markerList[i].setMap(this.newMap)
+        this.markerList[i][1].setMap(this.newMap)
       }
     },
 
     /**
-     * 添加全部站点标记点到地图
+     * 添加站点标记点到地图
      * @param num
      */
-    addMarkerToMap (num) {
+    addMarkerToMap (name) {
       // 先清除覆盖物，再添加覆盖物，以达到只显示一个覆盖物的效果
-      console.log(num)
+      console.log(name)
+      let c = 0
       this.newMap.remove(this.markerList)
-      this.newMap.add(this.markerList[num])
-      // 中心点随覆盖物区域的选择变动
-      console.log(this.store.siteAllData[num].zoom)
-      this.newMap.setCenter(this.store.siteAllData[num].siteRange)
+      this.markerList.map((item,index) => {
+        if (item[0] === name) {
+          this.newMap.add(item[1])
+          c = index
+        }
+      })
+      this.newMap.setCenter(this.store.siteAllData[c].siteRange)
     },
 
+    /**
+     * 轮询
+     */
+    askServe () {
+      this.store.getAllVehicleData()
+      let nowDate = +new Date()
+      let index = this.store.vehicleAllData.length
+      let item = this.store.vehicleAllData[index-1]
+      let itemDate = item.startTime
+      let aDate = +new Date(itemDate)
+      console.log('seq', typeof item.siteId)
+
+      if (nowDate - aDate <= 600000) {
+        this.siteIdT = item.siteId
+        this.store.siteAllData.map((item,index) => {
+          if (item.siteId === id) {
+          }
+        })
+      }
+    },
+
+    cancelChangeForm () {
+      this.dialogChangeVisible = false
+      this.$router.push('/RegMana/RegManaList')
+    },
 
   },
 }

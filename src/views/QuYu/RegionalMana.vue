@@ -2,11 +2,14 @@
   <div class="reg-body">
     <div class="reg-body-total">
       <div class="reg-body-item-select">
-        <el-select style="margin-right: 10px" v-model="value1" placeholder="请选择区域" :disabled="select">
-          <el-option v-for="(item,index) in this.store.regionAllData" :key="item.id" :label="item.name" :value="item.id" @click.native="showRegional(index)"/>
+        <el-select style="margin-right: 10px" clearable @clear="emptySelect" v-model="value1" placeholder="请选择区域" :disabled="select">
+          <el-option v-for="(item,index) in this.store.regionAllData" :key="item.id" :label="item.name" :value="item.id" @click.native="showRegional(index,item.id)"/>
         </el-select>
-        <el-select style="margin-right: 10px" v-model="value2" placeholder="请选择站点" :disabled="select">
-          <el-option v-for="(item,index) in this.store.siteAllData" :key="item.siteId" :label="item.siteName" :value="item.siteId" @click.native="showMarker(index)"/>
+        <el-select v-if="allOrPart===1" style="margin-right: 10px" v-model="value2" placeholder="请选择站点" :disabled="select">
+          <el-option v-for="(item,index) in this.store.siteAllData" :key="index" :label="item.siteName" :value="item.siteName" @click.native="showMarker(item.siteName)"/>
+        </el-select>
+        <el-select v-else style="margin-right: 10px" v-model="value2" placeholder="请选择站点" :disabled="select">
+          <el-option v-for="(item,index) in this.sitePartData" :key="index" :label="item.siteName" :value="item.siteName" @click.native="showMarker(item.siteName)"/>
         </el-select>
       </div>
       <div class="Rebody-item-click">
@@ -31,7 +34,7 @@
         点击左键开始绘制，按右键结束
       </div>
       <el-row>
-        <el-button size="medium" type="primary" @click="cancelDraw">取消</el-button>
+        <el-button size="medium" type="primary" style="margin-bottom: 7px" @click="cancelDraw">取消</el-button>
         <el-button size="medium" type="primary" @click="submitDrawPath">完成绘制</el-button>
       </el-row>
     </div>
@@ -67,7 +70,7 @@
 import Map from '@/views/QuYu/Map'
 import { store } from '@/store/store'
 import RegManaList from '@/views/QuYu/RegManaList'
-import {getCurrentRegionServeData,addRegionServeData} from "@/network/region";
+import {getCurrentRegionServeData,addRegionServeData,getSiteName} from "@/network/region";
 import qs from "qs";
 
 // 区域管理
@@ -82,6 +85,7 @@ export default {
     return {
       store,
       select:false, // 可用或禁用开关
+      allOrPart:1,
       value1: '',
       value2: '',
       value3: '',
@@ -89,6 +93,8 @@ export default {
       pageSize:'10',
       showDraw:false,
       regionData:[],
+      siteAllData:[],
+      sitePartData:[],
       pageName: '区域管理',
       dialogAddRegVisible: false,
       riskLevelOptions: [
@@ -140,7 +146,6 @@ export default {
 
   mounted() {
     this.decideSelect()
-    this.store.getRegAllData()
     this.store.getSiteAllDataList()
   },
 
@@ -203,31 +208,34 @@ export default {
     addRegionToServe () {
       addRegionServeData(this.addRegForm).then(res => {
         console.log(res)
-        this.reload()
+        this.$refs.child.createDefaultPolygon()
+        this.$refs.child.addAllPolygonToMap()
+        this.dialogAddRegVisible = false
       }).catch(err => {
         console.log(err)
         alert('错误：'+ err.code)
       })
-      this.dialogFormVisible = false
-      window.location.reload()
     },
 
     /**
-     * 显示指定区域的范围以及站点位置
+     * 显示指定区域的范围
      */
-    showRegional (num) {
+    showRegional (num,id) {
       let num1 = Number(num)
-      console.log(num1)
+      getSiteName(id).then(res => {
+        this.sitePartData = res.data
+        this.allOrPart = 2
+      }).catch(err => {
+        console.log(err)
+      })
       this.$refs.child.addPolygonToMap(num1)
     },
 
     /**
      * 显示指定站点位置
      */
-    showMarker (num) {
-      let num1 = Number(num)
-      console.log(num1)
-      this.$refs.child.addMarkerToMap(num1)
+    showMarker (name) {
+      this.$refs.child.addMarkerToMap(name)
     },
 
     /**
@@ -235,6 +243,14 @@ export default {
      */
     cancelDraw () {
       this.reload()
+    },
+
+    /**
+     * 清空区域选择框
+     */
+    emptySelect () {
+      this.allOrPart = 1
+      this.$refs.child.addAllPolygonToMap()
     },
   }
 }

@@ -39,6 +39,7 @@ export const store = reactive({
     getCurrentRegionServeData(this.pageNum,this.pageSize).then(res => {
       this.regionAllData = res.data.rows
       this.getToArray(this.regionAllData)
+      console.log('321',res.data.rows)
     }).catch(err => {
       console.log(err)
     })

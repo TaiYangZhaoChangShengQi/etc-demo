@@ -3,7 +3,7 @@
     <div class="type-line">
       <div class="type-line-path">{{PageName}}</div>
       <div class="type-line-button">
-        <el-button type="primary" @click="dialogFormVisible = true">添加设备</el-button>
+        <el-button type="primary" @click="dialogFormVisible = true">添加设备类型</el-button>
       </div>
     </div>
     <div class="type-table">
@@ -29,12 +29,12 @@
               @current-change="currentChange" :total="totalCount">
       </el-pagination>
       <!--添加设备对话框 -->
-      <el-dialog title="添加设备" :visible.sync="dialogFormVisible" width="40%">
+      <el-dialog title="添加设备类型" :visible.sync="dialogFormVisible" width="40%">
         <el-form ref="form" :model="form" label-width="120px">
-          <el-form-item label="设备编号" prop="devNumber">
+          <el-form-item label="类型编号" prop="devNumber">
             <el-input v-model="form.id" style="width: 300px"/>
           </el-form-item>
-          <el-form-item label="设备名称" prop="devName">
+          <el-form-item label="类型名称" prop="devName">
             <el-input v-model="form.typeName" style="width: 300px"/>
           </el-form-item>
           <el-form-item>

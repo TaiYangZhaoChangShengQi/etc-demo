@@ -13,7 +13,7 @@
           -
           <el-date-picker class="input-style" type="datetime" format="yyyy-MM-dd" value-format="yyyy-MM-dd" placeholder="选择日期时间" v-model="searchForm.endTime" ></el-date-picker>
           <el-button class="add-margin" type="primary" icon="el-icon-search" @click="getQuery">搜索</el-button>
-          <el-button style="width: 80px" type="primary" @click="updateVehicleData">重置</el-button>
+          <el-button style="width: 80px" type="primary" @click="clearSearch">重置</el-button>
         </div>
         <el-button style="width: 100px" type="primary" @click="dialogAddVehicleVisible = true">添加车辆</el-button>
       </div>
@@ -26,7 +26,14 @@
         <el-table-column align="center" label="开始时间" min-width="200" prop="startTime" sortable/>
         <el-table-column align="center" label="结束时间" min-width="200" prop="endTime" sortable/>
         <el-table-column align="center" label="识别次数" width="150" prop="frequency"/>
-        <el-table-column align="center" label="识别站点" width="150" prop="siteName" sortable/>
+        <el-table-column align="center" label="所属区域" width="150" prop="regionalName"/>
+        <el-table-column align="center" label="风险等级" width="150" prop="riskLevel"/>
+        <el-table-column align="center" label="管控等级" width="150" prop="controlLevel"/>
+        <el-table-column align="center" label="识别站点" width="150" prop="siteName" sortable>
+          <template slot-scope="scope">
+            <div class="site" @click="getSite(scope.row.siteId)">{{scope.row.siteName}}</div>
+          </template>
+        </el-table-column>
       </el-table>
       <!-- 分页 -->
       <el-pagination
@@ -72,6 +79,20 @@
         </el-form-item>
       </el-form>
     </el-dialog>
+    <!-- 站点详情 -->
+    <el-dialog title="" :visible.sync="dialogSiteVisible" width="40%">
+      <div class="details">
+        <el-descriptions title="站点详情" direction="vertical" :column="4" border>
+          <el-descriptions-item label="站点编号">{{detailForm.siteNumber}}</el-descriptions-item>
+          <el-descriptions-item label="站点名称">{{detailForm.siteName}}</el-descriptions-item>
+          <el-descriptions-item label="所属区域" :span="2">{{detailForm.name}}</el-descriptions-item>
+          <el-descriptions-item label="备注">
+            <el-tag size="small">站点</el-tag>
+          </el-descriptions-item>
+        </el-descriptions>
+      </div>
+    </el-dialog>
+
   </div>
 </template>
 
@@ -96,9 +117,15 @@ export default {
       pageNum:'1',
       pageSize:'10',
       totalCount:0,
+      detailForm:{
+        siteNumber:'',
+        siteName:'',
+        name:'',
+      },
       vehicleData:[], // 渲染列表
       vehicleSearchData:[], // 渲染判断列表
       getOrSearch:0,
+      dialogSiteVisible:false,
       dialogAddVehicleVisible:false,
       searchForm:{
         currentPage:1,
@@ -206,6 +233,34 @@ export default {
         console.log(err)
       })
     },
+
+    /**
+     * 清空搜索框
+     */
+    clearSearch () {
+      this.updateVehicleData()
+      this.searchForm.licensePlate = ''
+      this.searchForm.obuId = ''
+      this.searchForm.siteName = ''
+      this.searchForm.startTime = ''
+      this.searchForm.endTime = ''
+    },
+
+    /**
+     *
+     */
+    getSite (id) {
+      this.dialogSiteVisible = true
+      console.log(id)
+      console.log(typeof id)
+      this.store.siteAllData.map((item,index) => {
+        if (item.siteId === id) {
+          this.detailForm.siteNumber = item.siteNumber
+          this.detailForm.siteName = item.siteName
+          this.detailForm.name = item.name
+        }
+      })
+    },
   }
 }
 </script>
@@ -256,5 +311,15 @@ export default {
 
   .add-margin {
     margin-left: 10px;
+  }
+
+  .site:hover {
+    color: #bd2c00;
+    cursor: pointer;
+  }
+
+  .details {
+
+    font-family: "NSimSun", "Microsoft YaHei", "微软雅黑", Arial, sans-serif;
   }
 </style>

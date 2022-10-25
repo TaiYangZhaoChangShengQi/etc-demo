@@ -13,7 +13,7 @@
             <el-input class="input-style" clearable v-model="searchForm.siteName" size="medium" placeholder="请输入站点名称"/>
             <el-input class="input-style" clearable v-model="searchForm.siteNumber" size="medium" placeholder="请输入站点编号"/>
             <el-button class="add-margin" type="primary" icon="el-icon-search" @click="getQuery">搜索</el-button>
-            <el-button style="width: 80px" type="primary" @click="getSiteDataList">重置</el-button>
+            <el-button style="width: 80px" type="primary" @click="clearSearch()">重置</el-button>
           </div>
           <el-button type="primary" @click="clickAddSite">添加站点</el-button>
         </div>
@@ -77,7 +77,7 @@
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="addSite()">立即创建</el-button>
-          <el-button>取消</el-button>
+          <el-button @click="cancelChange">取消</el-button>
         </el-form-item>
       </el-form>
     </el-dialog>
@@ -393,6 +393,23 @@ export default {
       })
     },
 
+    /**
+     * 清空搜索框
+     */
+    clearSearch () {
+      this.getSiteDataList()
+      this.searchForm.name = ''
+      this.searchForm.siteName = ''
+      this.searchForm.siteNumber = ''
+    },
+
+    /**
+     * 取消添加站点
+     */
+    cancelChange () {
+      this.dialogFormVisible = false
+      window.location.reload()
+    },
   },
 
 

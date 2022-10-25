@@ -25,8 +25,8 @@
           <span>车辆信息</span>
         </template>
         <el-menu-item-group>
-          <el-menu-item index="/CarInfoRecord">车辆信息</el-menu-item>
-          <el-menu-item index="/vehicleMap">地图</el-menu-item>
+          <el-menu-item index="/CarInfoRecord">列表展示</el-menu-item>
+          <el-menu-item index="/vehicleMap">地图展示</el-menu-item>
         </el-menu-item-group>
       </el-submenu>
       <el-menu-item index="/DeviceBeatMana" class="pad">

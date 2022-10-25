@@ -17,13 +17,6 @@
         <el-table-column align="center" label="设备名称" min-width="200" prop="devName" sortable/>
         <el-table-column align="center" label="创建时间" min-width="200" prop="createTime"/>
         <el-table-column align="center" label="心跳记录" min-width="200" prop="heartbeatRecord"/>
-        <!-- 判断在线与否 -->
-        <el-table-column align="center" label="状态" min-width="200">
-          <template slot-scope="scope">
-            <div v-if="scope.row.heartbeatRecord">在线</div>
-            <div v-else>离线</div>
-          </template>
-        </el-table-column>
       </el-table>
       <!-- 分页 -->
       <el-pagination
