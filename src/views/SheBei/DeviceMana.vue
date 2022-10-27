@@ -50,7 +50,7 @@
           <!-- 分页 -->
           <el-pagination
                   layout="total, sizes, prev, pager, next, jumper" style="text-align: center;"
-                  @size-change="sizeChange" @current-change="currentChange" :total="totalCount">
+                  :current-page.sync="currentPage" @size-change="sizeChange" @current-change="currentChange" :total="totalCount">
           </el-pagination>
         </div>
       </div>
@@ -136,6 +136,7 @@ export default {
       store,
       search: '',
       getOrSearch:0,
+      currentPage:1,
       state:'在',
       intervalOn:null,
       pageNum:'1',
@@ -308,6 +309,9 @@ export default {
      */
     getQuery () {
       window.clearInterval(this.intervalOn)
+      if (this.getOrSearch === 0) {
+        this.currentPage = 1
+      }
       searchDeviceServeData(this.searchForm).then(res => {
         this.deviceSearchData = res.data.rows
         this.totalCount = res.data.totalCount

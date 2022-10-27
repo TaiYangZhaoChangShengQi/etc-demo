@@ -245,9 +245,11 @@ export default {
      * 后端条件搜索
      */
     getQuery () {
+      if (this.getOrSearch === 0) {
+        this.currentPage = 1
+      }
       searchVehicleServeData(this.searchForm).then(res => {
         console.log(this.searchForm)
-        this.currentPage = 1
         this.vehicleSearchData = res.data.rows
         this.totalCount = res.data.totalCount
         this.getOrSearch = 1

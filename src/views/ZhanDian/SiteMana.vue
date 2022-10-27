@@ -54,7 +54,7 @@
         <!-- 分页 -->
         <el-pagination
                 layout="total, sizes, prev, pager, next, jumper" style="text-align: center;"
-                @size-change="sizeChange" @current-change="currentChange" :total="totalCount">
+                :current-page.sync="currentPage" @size-change="sizeChange" @current-change="currentChange" :total="totalCount">
         </el-pagination>
       </div>
     </div>
@@ -127,6 +127,7 @@ export default {
       search: '',
       getOrSearch:0,
       siteSearchData:[],
+      currentPage:1,
       pageNum:'1',
       pageSize:'10',
       totalCount:0,
@@ -181,7 +182,6 @@ export default {
     if (this.$route.params.siteID >= 0) {
       let c = Number(this.$route.params.siteID)
       this.openChangeForm(c)
-
     }
 
   },
@@ -232,7 +232,8 @@ export default {
         getCurrentSiteServeData(this.pageNum,this.pageSize).then(res => {
           this.store.siteData.splice(0)
           this.store.siteData = res.data.rows
-          this.getToArray()
+          console.log(res.data.rows)
+          this.getToArray(this.store.siteData)
         }).catch(err => {
           console.log(err)
         })
@@ -384,6 +385,9 @@ export default {
      * 后端条件搜索
      */
     getQuery () {
+      if (this.getOrSearch === 0) {
+        this.currentPage = 1
+      }
       searchSiteServeData(this.searchForm).then(res => {
         this.siteSearchData = res.data.rows
         this.totalCount = res.data.totalCount
@@ -399,9 +403,7 @@ export default {
      */
     clearSearch () {
       this.getSiteDataList()
-      this.searchForm.name = ''
-      this.searchForm.siteName = ''
-      this.searchForm.siteNumber = ''
+      this.reload()
     },
 
     /**
