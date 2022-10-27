@@ -64,10 +64,22 @@
         <el-form-item label="识别次数">
           <el-input v-model="vehicleForm.frequency" style="width: 300px"/>
         </el-form-item>
+        <el-form-item label="区域名称">
+          <el-select v-model="vehicleForm.regionalName" placeholder="请选择区域">
+            <el-option v-for="(item,index) in store.regionAllData" :key="item.id" :label="item.name" :value="item.name"
+                       @click.native="showSite(item.name,item.riskLevel,item.controlLevel)"/>
+          </el-select>
+        </el-form-item>
         <el-form-item label="站点ID">
           <el-select v-model="vehicleForm.siteId" placeholder="请选择站点">
-            <el-option v-for="item in store.siteAllData" :key="item.siteId" :label="item.siteName" :value="item.siteId"/>
+            <el-option v-for="item in showSiteForm" :key="item.siteId" :label="item.siteName" :value="item.siteId"/>
           </el-select>
+        </el-form-item>
+        <el-form-item label="风险等级">
+          <el-input v-model="vehicleForm.riskLevel" style="width: 300px"/>
+        </el-form-item>
+        <el-form-item label="管控等级">
+          <el-input v-model="vehicleForm.controlLevel" style="width: 300px"/>
         </el-form-item>
         <el-form-item label="识别设备">
           <el-select v-model="vehicleForm.devId" placeholder="请选择设备">
@@ -139,16 +151,20 @@ export default {
         startTime:'',
         endTime:'',
       },
+      showSiteForm:[],
       vehicleForm: {   // 添加信息的表单
         obuId:'',
         licensePlate:'',
         startTime:'',
         endTime: '',
         frequency: '', // 识别次数
+        regionalName:'',
         siteId: '',
         devId: '',
         trackRecord:'',
         rawData:'',
+        riskLevel:'',
+        controlLevel:''
       },
     }
   },
@@ -179,6 +195,7 @@ export default {
       this.vehicleForm.startTime = this.date1
       this.vehicleForm.endTime = this.date3
       addVehicleServeData(this.vehicleForm).then(res => {
+        console.log(res)
         this.reload()
       }).catch(err => {
         console.log(err)
@@ -229,11 +246,9 @@ export default {
      */
     getQuery () {
       searchVehicleServeData(this.searchForm).then(res => {
-        console.log('se',res)
         console.log(this.searchForm)
         this.currentPage = 1
         this.vehicleSearchData = res.data.rows
-        console.log('23',res.data.rows)
         this.totalCount = res.data.totalCount
         this.getOrSearch = 1
       }).catch(err => {
@@ -247,16 +262,10 @@ export default {
     clearSearch () {
       this.updateVehicleData()
       this.reload()
-      // this.currentPage = 1
-      // this.searchForm.licensePlate = ''
-      // this.searchForm.obuId = ''
-      // this.searchForm.siteName = ''
-      // this.searchForm.startTime = ''
-      // this.searchForm.endTime = ''
     },
 
     /**
-     *
+     * 显示站点详细信息
      */
     getSite (id) {
       this.dialogSiteVisible = true
@@ -269,6 +278,20 @@ export default {
           this.detailForm.name = item.name
         }
       })
+    },
+
+    /**
+     * 筛选站点
+     */
+    showSite (name,riskLevel,controlLevel) {
+      this.vehicleForm.riskLevel = riskLevel
+      this.vehicleForm.controlLevel = controlLevel
+      this.store.siteAllData.map((item) => {
+        if (item.name === name) {
+          this.showSiteForm.push(item)
+        }
+      })
+      console.log(this.showSiteForm)
     },
   }
 }

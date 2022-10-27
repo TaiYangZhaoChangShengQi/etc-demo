@@ -336,10 +336,7 @@ export default {
      */
     clearSearch () {
       this.UpDevData()
-      this.searchForm.devNumber = ''
-      this.searchForm.devName = ''
-      this.searchForm.siteName = ''
-      this.searchForm.typeName = ''
+      this.reload()
     },
 
     /**
