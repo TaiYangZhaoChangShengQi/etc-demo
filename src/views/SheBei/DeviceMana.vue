@@ -213,6 +213,7 @@ export default {
     sizeChange (val) {
       if (this.getOrSearch === 0) {
         this.pageSize = val
+        this.searchForm.pageSize = val
         getCurrentDeviceServeData(this.pageNum,this.pageSize).then(res => {
           this.deviceData = res.data.rows
         }).catch(err => {

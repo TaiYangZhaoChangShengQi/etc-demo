@@ -37,8 +37,9 @@
       </el-table>
       <!-- 分页 -->
       <el-pagination
-              layout="total, sizes, prev, pager, next, jumper" style="text-align: center;"
-              @size-change="sizeChange" @current-change="currentChange" :total="totalCount">
+        style="text-align: center;" @size-change="sizeChange" @current-change="currentChange" :total="totalCount"
+        :current-page.sync="currentPage" v-model:page-size="limit" :page-sizes="[10,15,20,50,100]"
+        layout="total, sizes, prev, pager, next, jumper">
       </el-pagination>
     </div>
     <!-- 添加车辆信息对话框 -->
@@ -117,6 +118,8 @@ export default {
       pageNum:'1',
       pageSize:'10',
       totalCount:0,
+      limit: 10,
+      currentPage:1,
       detailForm:{
         siteNumber:'',
         siteName:'',
@@ -156,7 +159,7 @@ export default {
 
   methods: {
     /**
-     * 获取设备列表
+     * 获取车辆列表
      */
     updateVehicleData () {
       getAllVehicleServeData().then(res => {
@@ -209,6 +212,7 @@ export default {
     sizeChange (val) {
       if (this.getOrSearch === 0) {
         this.pageSize = val
+        this.searchForm.pageSize = val
         getCurrentVehicleServeData(this.pageNum,this.pageSize).then(res => {
           this.vehicleData = res.data.rows
         }).catch(err => {
@@ -225,8 +229,11 @@ export default {
      */
     getQuery () {
       searchVehicleServeData(this.searchForm).then(res => {
-        console.log('se',res.data)
+        console.log('se',res)
+        console.log(this.searchForm)
+        this.currentPage = 1
         this.vehicleSearchData = res.data.rows
+        console.log('23',res.data.rows)
         this.totalCount = res.data.totalCount
         this.getOrSearch = 1
       }).catch(err => {
@@ -239,11 +246,13 @@ export default {
      */
     clearSearch () {
       this.updateVehicleData()
-      this.searchForm.licensePlate = ''
-      this.searchForm.obuId = ''
-      this.searchForm.siteName = ''
-      this.searchForm.startTime = ''
-      this.searchForm.endTime = ''
+      this.reload()
+      // this.currentPage = 1
+      // this.searchForm.licensePlate = ''
+      // this.searchForm.obuId = ''
+      // this.searchForm.siteName = ''
+      // this.searchForm.startTime = ''
+      // this.searchForm.endTime = ''
     },
 
     /**

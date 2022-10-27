@@ -249,6 +249,7 @@ export default {
     sizeChange (val) {
       if (this.getOrSearch === 0) {
         this.pageSize = val
+        this.searchForm.pageSize = val
         getCurrentSiteServeData(this.pageNum,this.pageSize).then(res => {
           console.log("res " , res.data)
           this.store.siteData.splice(0)
