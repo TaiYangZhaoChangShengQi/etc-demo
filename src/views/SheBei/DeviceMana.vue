@@ -137,6 +137,7 @@ export default {
       search: '',
       getOrSearch:0,
       state:'在',
+      intervalOn:null,
       pageNum:'1',
       pageSize:'10',
       totalCount:0,
@@ -172,7 +173,7 @@ export default {
 
   created () {
     this.UpDevData()
-    window.setInterval( ()=>{this.askServe()},5000)
+    this.lunXun()
   },
 
   methods: {
@@ -223,7 +224,6 @@ export default {
         this.searchForm.pageSize = val
         this.getQuery()
       }
-
     },
 
     /**
@@ -281,6 +281,7 @@ export default {
      * 关键字搜索
      */
     getSearch () {
+      window.clearInterval(this.intervalOn)
       let keyWord = this.search.toLowerCase()
       let arr = []
       //输入内容为空时返回原数据
@@ -306,6 +307,7 @@ export default {
      * 后端条件搜索
      */
     getQuery () {
+      window.clearInterval(this.intervalOn)
       searchDeviceServeData(this.searchForm).then(res => {
         this.deviceSearchData = res.data.rows
         this.totalCount = res.data.totalCount
@@ -335,6 +337,7 @@ export default {
      * 清空搜索框
      */
     clearSearch () {
+      this.intervalOn = window.setInterval( ()=>{this.askServe()},5e3)
       this.UpDevData()
       this.reload()
     },
@@ -349,7 +352,14 @@ export default {
       }).catch(err => {
         console.log(err)
       })
-    }
+    },
+
+    /**
+     * 存放轮询
+     */
+    lunXun () {
+      this.intervalOn = window.setInterval( ()=>{this.askServe()},5e3)
+    },
   },
 }
 </script>
