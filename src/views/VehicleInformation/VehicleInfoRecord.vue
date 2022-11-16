@@ -13,7 +13,7 @@
           -
           <el-date-picker class="input-style" type="datetime" format="yyyy-MM-dd" value-format="yyyy-MM-dd" placeholder="选择日期时间" v-model="searchForm.endTime" ></el-date-picker>
           <el-button class="add-margin" type="primary" icon="el-icon-search" @click="getQuery">搜索</el-button>
-          <el-button style="width: 80px" type="primary" @click="clearSearch">重置</el-button>
+          <el-button style="width: 80px" type="info" @click="clearSearch">重置</el-button>
         </div>
         <el-button style="width: 100px" type="primary" @click="dialogAddVehicleVisible = true">添加车辆</el-button>
       </div>
@@ -27,6 +27,11 @@
         <el-table-column align="center" label="结束时间" min-width="200" prop="endTime" sortable/>
         <el-table-column align="center" label="识别次数" width="150" prop="frequency"/>
         <el-table-column align="center" label="所属区域" width="150" prop="regionalName"/>
+        <el-table-column align="center" label="体温" width="100" prop="wendu">
+          <template slot-scope="scope">
+            <el-button type="text" @click="showThermodynamicDiagram(scope.row.wendu)">{{scope.row.wendu}}</el-button>
+          </template>
+        </el-table-column>
         <el-table-column align="center" label="风险等级" width="150" prop="riskLevel"/>
         <el-table-column align="center" label="管控等级" width="150" prop="controlLevel"/>
         <el-table-column align="center" label="识别站点" width="150" prop="siteName" sortable>
@@ -105,12 +110,15 @@
         </el-descriptions>
       </div>
     </el-dialog>
-
+    <el-dialog title="" :visible.sync="dialogThermodynamicVisible" width="40%">
+      <div id="main" style="width: 600px;height:400px;"></div>
+    </el-dialog>
   </div>
 </template>
 
 <script>
 import {store} from "@/store/store";
+import * as echarts from 'echarts';
 import {getAllVehicleServeData,getCurrentVehicleServeData,addVehicleServeData,searchVehicleServeData} from "@/network/vehicle";
 
 export default {
@@ -119,6 +127,13 @@ export default {
   data () {
     return {
       store,
+      app: {},
+      options: null,
+      chartDom:'',
+      myChart:'',
+      data: [[0, 0, 0], [1, 0, 0]],
+      xData: ['站点1', '站点2', '站点3', '站点4', '站点5'],
+      yData: ['36', '36.2', '36.4', '36.6', '36.8','37','37.2'],
       search: '',
       PageName: '车辆信息记录',
       startDate:'',
@@ -141,6 +156,7 @@ export default {
       vehicleSearchData:[], // 渲染判断列表
       getOrSearch:0,
       dialogSiteVisible:false,
+      dialogThermodynamicVisible:false,
       dialogAddVehicleVisible:false,
       searchForm:{
         currentPage:1,
@@ -180,12 +196,141 @@ export default {
     updateVehicleData () {
       getAllVehicleServeData().then(res => {
         this.vehicleData = res.data.rows
+        this.suiJi(this.vehicleData)
         this.totalCount = res.data.totalCount
         this.store.vehicleData = res.data.rows
         this.getOrSearch = 0
       }).catch(err => {
         console.log(err)
       })
+    },
+
+    /**
+     *
+     */
+    suiJi (obj) {
+      obj.map((item,index) => {
+        let c = Math.random() * (0.3 + 1) + 36
+        let d = Math.round(c * 10) / 10
+        item['wendu'] = d
+      })
+    },
+    showThermodynamicDiagram (wd) {
+      this.dialogThermodynamicVisible = true
+      if( this.chartDom === null ) {
+        this.initThermodynamicDom(wd)
+      }else {
+        this.$nextTick(() => {
+          console.log('2',this.chartDom)
+          this.initThermodynamicDom(wd)
+        })
+      }
+    },
+    initThermodynamicDom (wd) {
+      this.chartDom = document.getElementById('main');
+      this.myChart = echarts.init(this.chartDom)
+      let data = [[0, 0, 0], [1, 0, 0]]
+      let c = Math.random() * (0.3 + 1) + 36
+      let d = Math.round(c * 10) / 10
+      data.map((item, index) => {
+        if ( index === 0 ) {
+          switch ( true ) {
+            case wd <= 36:
+              item[2] = (wd - 36) * 10
+              break;
+            case wd <= 36.2:
+              item[1] = 1
+              item[2] = (wd - 36) * 10
+              break;
+            case wd <= 36.4:
+              item[1] = 2
+              item[2] = (wd - 36) * 10
+              break;
+            case wd <= 36.6:
+              item[1] = 3
+              item[2] = (wd - 36) * 10
+              break;
+            case wd <= 36.8:
+              item[1] = 4
+              item[2] = (wd - 36) * 10
+              break;
+            case wd <= 37:
+              item[1] = 5
+              item[2] = (wd - 36) * 10
+              break;
+            case wd <= 37.2:
+              item[1] = 6
+              item[2] = (wd - 36) * 10
+              break;
+          }
+        }else {
+          switch ( true ) {
+            case d <= 36:
+              item[2] = (d - 36) * 10
+              break;
+            case d <= 36.2:
+              item[1] = 1
+              item[2] = (d - 36) * 10
+              break;
+            case d <= 36.4:
+              item[1] = 2
+              item[2] = (d - 36) * 10
+              break;
+            case d <= 36.6:
+              item[1] = 3
+              item[2] = (d - 36) * 10
+              break;
+            case d <= 36.8:
+              item[1] = 4
+              item[2] = (d - 36) * 10
+              break;
+            case d <= 37:
+              item[1] = 5
+              item[2] = (d - 36) * 10
+              break;
+            case d <= 37.2:
+              item[1] = 6
+              item[2] = (d - 36) * 10
+              break;
+          }
+        }
+      })
+      let option = {
+        title: {
+          text: '司机温度热力图'
+        },
+        tooltip: {},
+        grid: {
+          height: '50%',
+          top: '10%'
+        },
+        xAxis: {
+          data: ['入站口','出站口']
+        },
+        yAxis: {
+          type: 'category',
+          data: [ '36', '36.2', '36.4', '36.6', '36.8', '37', '37.2'],
+          splitArea: {
+            show: true
+          }
+        },
+        visualMap: {
+          min: 0,
+          max: 12,
+          calculable: true,
+          orient: 'horizontal',
+          left: 'center',
+          bottom: '15%'
+        },
+        series: [
+          {
+            name: '温度',
+            type: 'heatmap',
+            data: data
+          }
+        ]
+      }
+      this.myChart.setOption(option);
     },
 
     /**
@@ -212,6 +357,7 @@ export default {
         this.pageNum = val
         getCurrentVehicleServeData(this.pageNum,this.pageSize).then(res => {
           this.vehicleData = res.data.rows
+          this.suiJi(this.vehicleData)
         }).catch(err => {
           console.log(err)
         })
@@ -232,6 +378,7 @@ export default {
         this.searchForm.pageSize = val
         getCurrentVehicleServeData(this.pageNum,this.pageSize).then(res => {
           this.vehicleData = res.data.rows
+          this.suiJi(this.vehicleData)
         }).catch(err => {
           console.log(err)
         })
@@ -251,6 +398,7 @@ export default {
       searchVehicleServeData(this.searchForm).then(res => {
         console.log(this.searchForm)
         this.vehicleSearchData = res.data.rows
+        this.suiJi(this.vehicleData)
         this.totalCount = res.data.totalCount
         this.getOrSearch = 1
       }).catch(err => {

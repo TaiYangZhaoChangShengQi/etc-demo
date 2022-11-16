@@ -1,7 +1,6 @@
 <template>
   <div>
     <div id="map"></div>
-    <button @click="testFunc">ccc</button>
     <div class="item">
       <h4>左击获取经纬度：</h4>
       <div class="input-item">

@@ -14,7 +14,7 @@
                 <el-option v-for="(item) in this.store.deviceTypeAllData" :key="item.id" :label="item.typeName" :value="item.typeName"/>
               </el-select>
               <el-button class="add-margin" type="primary" icon="el-icon-search" @click="getQuery">搜索</el-button>
-              <el-button style="width: 80px" type="primary" @click="clearSearch">重置</el-button>
+              <el-button style="width: 80px" type="info" @click="clearSearch">重置</el-button>
             </div>
             <el-button type="primary" @click="dialogFormVisible = true">添加设备</el-button>
           </div>
@@ -114,7 +114,7 @@
           </el-form-item>
           <el-form-item>
             <el-button type="primary" @click="submitDevData()">保存</el-button>
-            <el-button @click="dialogChangeVisible = false">取消</el-button>
+            <el-button @click="dialogChangeDevFormVisible = false">取消</el-button>
           </el-form-item>
         </el-form>
       </el-dialog>

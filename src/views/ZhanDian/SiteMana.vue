@@ -13,7 +13,7 @@
             <el-input class="input-style" clearable v-model="searchForm.siteName" size="medium" placeholder="请输入站点名称"/>
             <el-input class="input-style" clearable v-model="searchForm.siteNumber" size="medium" placeholder="请输入站点编号"/>
             <el-button class="add-margin" type="primary" icon="el-icon-search" @click="getQuery">搜索</el-button>
-            <el-button style="width: 80px" type="primary" @click="clearSearch()">重置</el-button>
+            <el-button style="width: 80px" type="info" @click="clearSearch()">重置</el-button>
           </div>
           <el-button type="primary" @click="clickAddSite">添加站点</el-button>
         </div>
@@ -255,7 +255,7 @@ export default {
           console.log("res " , res.data)
           this.store.siteData.splice(0)
           this.store.siteData = res.data.rows
-          this.getToArray()
+          this.getToArray(this.store.siteData)
         }).catch(err => {
           console.log(err)
         })
@@ -331,7 +331,7 @@ export default {
     },
 
     /**
-     *保存修改
+     * 保存修改
      */
     submitSiteData () {
       this.SiteForm.siteRange = JSON.stringify(this.SiteForm.siteRange)
