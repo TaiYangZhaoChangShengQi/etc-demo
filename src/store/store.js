@@ -9,6 +9,7 @@ export const store = reactive({
     children: 'children',
     label: 'label'
   },
+  isLoggedIn:false,
   search: '',
   siteMap:null,
   vehicleMap:null,

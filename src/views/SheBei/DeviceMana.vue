@@ -114,7 +114,7 @@
           </el-form-item>
           <el-form-item>
             <el-button type="primary" @click="submitDevData()">保存</el-button>
-            <el-button @click="dialogChangeDevFormVisible = false">取消</el-button>
+            <el-button @click="cancelChange">取消</el-button>
           </el-form-item>
         </el-form>
       </el-dialog>
@@ -253,7 +253,6 @@ export default {
         }
       })
     },
-
     /**
      * 保存修改的设备信息
      */
@@ -263,6 +262,12 @@ export default {
       }).catch(err => {
         console.log(err)
       })
+      this.dialogChangeDevFormVisible = false
+    },
+    /**
+     *
+     */
+    cancelChange() {
       this.dialogChangeDevFormVisible = false
     },
 

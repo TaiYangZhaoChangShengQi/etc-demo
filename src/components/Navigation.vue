@@ -67,7 +67,10 @@ export default {
     width: 150px;
     height: 900px;
     background-color: rgba(0,0,0,0);
-    box-shadow: 0 2px 4px rgba(0,0 ,0 , .15);
+    box-shadow:
+        0px 1px 3px rgba(0, 0, 0, .12),
+        0px 1px 2px rgba(0, 0, 0, .24);
+    /*box-shadow: 0 2px 4px rgba(0,0 ,0 , .15);*/
   }
   .nav-content .nav-route {
     padding-left: 10px;

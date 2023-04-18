@@ -44,7 +44,7 @@
         </el-form>
       </el-dialog>
       <!--修改设备信息对话框        -->
-      <el-dialog title="修改设备信息" :visible.sync="dialogChangeDevFormVisible">
+      <el-dialog title="修改设备类型信息" :visible.sync="dialogChangeDevFormVisible">
         <el-form ref="form" :model="devTypeForm" label-width="80px">
           <el-form-item label="类型id">
             <el-input v-model="devTypeForm.id" />
@@ -54,7 +54,7 @@
           </el-form-item>
           <el-form-item>
             <el-button type="primary" @click="submitDevTypeData()">保存</el-button>
-            <el-button @click="dialogChangeVisible = false">取消</el-button>
+            <el-button @click="cancelChange">取消</el-button>
           </el-form-item>
         </el-form>
       </el-dialog>
@@ -156,7 +156,6 @@ export default {
         }
       })
     },
-
     /**
      * 保存修改的设备信息
      */
@@ -168,6 +167,14 @@ export default {
         console.log(err)
       })
       this.dialogChangeDevFormVisible = false
+    },
+    /**
+     *
+     */
+    cancelChange() {
+      console.log('123')
+      this.dialogChangeDevFormVisible = false
+      console.log('456')
     },
 
     /**

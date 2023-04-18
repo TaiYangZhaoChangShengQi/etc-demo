@@ -1,14 +1,7 @@
 <template>
   <div id="app">
-    <Home/>
-    <div class="content">
-      <div class="Nav">
-        <Navigation/>
-      </div>
-      <div class="View">
-        <router-view v-if="isRouterAlive"/>
-      </div>
-    </div>
+    <login v-if="!isLoggedIn" @loginSuccess="onLoginSuccess"/>
+    <FirstPage v-else/>
   </div>
 </template>
 
@@ -16,12 +9,16 @@
 import Home from './components/Home'
 import Navigation from '@/components/Navigation'
 import {store} from "@/store/store";
+import login from "@/components/login.vue";
+import FirstPage from "@/components/FirstPage.vue";
 
 export default {
   name: 'App',
   components: {
     Home,
-    Navigation
+    Navigation,
+    login,
+    FirstPage
   },
 
   provide () {
@@ -33,11 +30,19 @@ export default {
   data () {
     return {
       store,
-      isRouterAlive:true
+      isRouterAlive:true,
+      isLoggedIn: false
     }
   },
 
   created () {
+    const isLogin = localStorage.getItem('isLoggedIn')
+    if (isLogin === 'true') {
+      this.isLoggedIn = true
+    } else {
+      this.isLoggedIn = false
+    }
+
     this.store.getRegAllData()
     this.store.getSiteAllDataList()
     this.store.getDeviceTypeData()
@@ -46,6 +51,14 @@ export default {
   },
 
   methods:{
+
+    onLoginSuccess() {
+      this.isLoggedIn = true
+      console.log("onLoginSuccess")
+      // 登录成功后保存登录状态
+      localStorage.setItem('isLoggedIn', 'true')
+    },
+
     //刷新页面
     reload () {
       this.isRouterAlive = false

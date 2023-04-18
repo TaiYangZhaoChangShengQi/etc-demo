@@ -27,11 +27,11 @@
         <el-table-column align="center" label="结束时间" min-width="200" prop="endTime" sortable/>
         <el-table-column align="center" label="识别次数" width="150" prop="frequency"/>
         <el-table-column align="center" label="所属区域" width="150" prop="regionalName"/>
-        <el-table-column align="center" label="体温" width="100" prop="wendu">
-          <template slot-scope="scope">
-            <el-button type="text" @click="showThermodynamicDiagram(scope.row.wendu)">{{scope.row.wendu}}</el-button>
-          </template>
-        </el-table-column>
+        <!--<el-table-column align="center" label="体温" width="100" prop="wendu">-->
+        <!--  <template slot-scope="scope">-->
+        <!--    <el-button type="text" @click="showThermodynamicDiagram(scope.row.wendu)">{{scope.row.wendu}}</el-button>-->
+        <!--  </template>-->
+        <!--</el-table-column>-->
         <el-table-column align="center" label="风险等级" width="150" prop="riskLevel"/>
         <el-table-column align="center" label="管控等级" width="150" prop="controlLevel"/>
         <el-table-column align="center" label="识别站点" width="150" prop="siteName" sortable>
@@ -93,7 +93,7 @@
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="addVehicle()">立即创建</el-button>
-          <el-button @click="dialogVehicleVisible = false">取消</el-button>
+          <el-button @click="dialogAddVehicleVisible = false">取消</el-button>
         </el-form-item>
       </el-form>
     </el-dialog>

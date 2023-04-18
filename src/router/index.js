@@ -11,22 +11,37 @@ import CarInfoRecord from '@/views/VehicleInformation/VehicleInfoRecord'
 import vehicleMap from "@/views/VehicleInformation/vehicleMap";
 import DeviceBeatMana from "@/views/SheBeiXinTiao/DeviceBeatMana";
 import siteMap from "@/views/ZhanDian/siteMap";
+import Login from "@/components/login.vue";
+import firstPage from "@/components/FirstPage.vue";
 
 Vue.use(VueRouter)
 
 const routes = [
   {
-    path: '/',
-    component: Map
+    path: '/login',
+    component: Login
   },
+
+  {
+    path: '/',
+    redirect: '/RegMana/Map',
+  },
+
+  {
+    path: '/FirstPage',
+    component: firstPage
+  },
+
+  {
+    path: '/RegMana',
+    redirect: '/RegMana/Map',
+  },
+
   {
     path: '/RegMana',
     component: RegionalMana,
     children: [
-      {
-        path: '/',
-        component: Map
-      },
+
       {
         path: '/RegMana/Map',
         component: Map
@@ -35,8 +50,9 @@ const routes = [
         path: '/RegMana/RegManaList',
         component: RegManaList
       },
-    ]
+    ],
   },
+
   {
     path: '/SiteMana',
     name:'SiteMana',

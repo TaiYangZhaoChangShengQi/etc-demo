@@ -169,6 +169,7 @@ export default {
         children: 'children',
         label: 'label'
       },
+      debouncedSearch: () => {},
     }
   },
 
@@ -356,6 +357,23 @@ export default {
       }).catch(err => {
         console.log('err',err)
       })
+    },
+
+    /**
+     * 防抖
+     */
+    debounce(func, delay = 2000, immediate = false) {
+      let timer = null
+      return function() {
+        // 如果短时间内连续触发
+        if (timer) clearTimeout(timer)
+        if (immediate && !timer) {
+          func.apply(this, arguments)
+        }
+        timer = setTimeout(() => {
+          func.apply(this, arguments)
+        }, delay)
+      }
     },
 
     /**
